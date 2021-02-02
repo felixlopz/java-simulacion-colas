@@ -127,7 +127,6 @@ public class Simulacion {
         return (int) (Math.random() * 99);
     }
     
-    // si todos los servidores estan ocupados devuelve true
     public Boolean areServersFull( List<Servidor> servidores ){ 
         for (Servidor server : servidores){
            if( server.getServerStatus() == 0) return false;
@@ -135,27 +134,23 @@ public class Simulacion {
         return true;
     }
     
-    // si todos los servidores estan libres devuelve true
-    public Boolean areServersFree(List<Servidor> servidores){ 
+    public Boolean areServersFree( List<Servidor> servidores ){ 
         for (Servidor server : servidores){
            if( server.getServerStatus() == 1) return false;
         }
         return true;
     }
     
-    
-    
-    public int elegirServidor(List<Servidor> servidores){     //si hay algun servidor desocupado devuelve el numero de ese servidor
+    public int selectServer( List<Servidor> servidores ){ 
         if (areServersFull(servidores)){
             return -1;
         }
-        while(true){
-            for (Servidor i:servidores){
-                if (i.getServerStatus()==0){
-                    return i.getNroServidor();
+            for (Servidor server:servidores){
+                if ( server.getServerStatus() == 0 ){
+                    return server.getNroServidor();
                 }
-            }        
-        }
+            }            
+        return -1;
     }
     
     public int generarTiempoServicio(){
@@ -234,7 +229,7 @@ public class Simulacion {
                         clientesEnSistema++;
                         numeroCliente=contadorCliente;
                         Cliente cliente = new Cliente(contadorCliente,tiempoSim);
-                        servidorEscogido=this.elegirServidor(servidores);                        
+                        servidorEscogido=this.selectServer(servidores);                        
                         if (servidorEscogido!=-1){            
                             servidores.get(servidorEscogido).setServerStatus(1);
                             servidores.get(servidorEscogido).setAtendiendo(cliente);
