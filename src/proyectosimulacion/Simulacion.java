@@ -123,41 +123,30 @@ public class Simulacion {
     };
     
     
-
-    
-    public int servidoresOcupados(List<Servidor> servidores){ // si todos los servidores estan ocupados devuelve 1
-        int ocupados = 0;
-        for (Servidor i:servidores){
-            if (i.getServerStatus() == 1){
-                ocupados++;
-            }
-        }
-        if (ocupados == servidores.size()){
-            return 1;
-        }
-        return 0;
+    public int randomNumber(){  
+        return (int) (Math.random() * 99);
     }
     
-    public int servidoresDesocupados(List<Servidor> servidores){ //si todos los servidores estan libres devuelve 1
-        int desocupados = 0;
-        for (Servidor i:servidores){
-            if (i.getServerStatus() == 0){
-                desocupados++;
-            }
+    // si todos los servidores estan ocupados devuelve true
+    public Boolean areServersFull( List<Servidor> servidores ){ 
+        for (Servidor server : servidores){
+           if( server.getServerStatus() == 0) return false;
         }
-        if (desocupados == servidores.size()){
-            return 1;
-        }
-        return 0;
+        return true;
     }
     
-    public int generarNumeroAleatorio(){             //Genera un numero aleatorio
-        int numero = (int) (Math.random() * 99);
-        return numero;
+    // si todos los servidores estan libres devuelve true
+    public Boolean areServersFree(List<Servidor> servidores){ 
+        for (Servidor server : servidores){
+           if( server.getServerStatus() == 1) return false;
+        }
+        return true;
     }
+    
+    
     
     public int elegirServidor(List<Servidor> servidores){     //si hay algun servidor desocupado devuelve el numero de ese servidor
-        if (servidoresOcupados(servidores)==1){
+        if (areServersFull(servidores)){
             return -1;
         }
         while(true){
@@ -173,7 +162,7 @@ public class Simulacion {
         int numAleatorio =0;
         int limInf = 0;
         int limSup = this.distribucionServicio[0][1]-1;
-        numAleatorio = generarNumeroAleatorio();       
+        numAleatorio = randomNumber();       
         for(int i=0; i<this.distribucionServicio.length ; i++){
             if(numAleatorio<=limSup && numAleatorio>=limInf){
                 this.numAleatorioST= Integer.toString(numAleatorio);
@@ -191,7 +180,7 @@ public class Simulacion {
         int numAleatorio =0;
         int limInf = 0;
         int limSup = 0;
-        numAleatorio = generarNumeroAleatorio();        
+        numAleatorio = randomNumber();        
         
         for(int i=0;i<this.distribucionLlegadas.get(diaActual).length;i++){
             limSup += this.distribucionLlegadas.get(diaActual)[i][1]-1; 
@@ -327,7 +316,7 @@ public class Simulacion {
                         }
                         else{
                             menorDT=9999;
-                            if (servidoresDesocupados(servidores)==1){
+                            if (areServersFree(servidores)){
                                 DT=9999;
                             }
                             else{
