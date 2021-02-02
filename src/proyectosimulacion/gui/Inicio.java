@@ -1,5 +1,6 @@
 package proyectosimulacion.gui;
 
+import datos.Datos;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -10,6 +11,7 @@ import proyectosimulacion.ResultadosData;
 
 import java.io.FileReader;
 import java.io.File;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.Scanner;
 import javax.swing.JFileChooser;
@@ -168,7 +170,7 @@ public class Inicio extends javax.swing.JFrame {
 
         jLabel9.setText("Min");
 
-        botonArchivo.setText("Cargar Archivo");
+        botonArchivo.setText("Simular desde archivo");
         botonArchivo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 botonArchivoActionPerformed(evt);
@@ -228,13 +230,13 @@ public class Inicio extends javax.swing.JFrame {
                                 .addComponent(botonQuitarServidor)
                                 .addGap(48, 48, 48))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(botonArchivo)
+                                .addComponent(botonArchivo, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(simularBoton))))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(240, 240, 240)
                         .addComponent(jLabel4)))
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(11, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -467,89 +469,201 @@ public class Inicio extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_servidoresActionPerformed
 
-    private void botonArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonArchivoActionPerformed
-        int probabilidadTs = 0;
-
-        JFileChooser chooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("JSON Save files", "json");
-        chooser.setFileFilter(filter);
-        int returnVal = chooser.showOpenDialog(getParent());
-        if(returnVal == JFileChooser.APPROVE_OPTION) {
-        }
-        file = chooser.getSelectedFile();
+    private Boolean isDistributionValid(int [][] values){
         
-        try {
-            FileReader reader = new FileReader(file);
-            JSONParser jsonParser = new JSONParser();
+        int probabilidadIndex = 1;
+        int probabilidadCounter = 0;
+        for (int row = 0; row < values.length; row++){
+           probabilidadCounter += values[row][probabilidadIndex];
+        }
+        return probabilidadCounter == 100;
+    };
+    
+    
+    private void printDataFromJsonFile (
+        String fileName,
+        int capacidadMaxima, 
+        int tiempoTotal, 
+        String unidadTiempoTotal, 
+        int tiempoSecundario, 
+        String unidadTiempoSecundaria,
+        int cantidadServidores,
+        int costoServidor,
+        int costoEsperaCliente,
+        ArrayList distribucionLLegadasArray,
+        int [][] distribucionServicio
+    ){
+        
+        System.out.println("Se leyo el archivo" + fileName + "exitosamente");
+        System.out.println("Capacida maxima del sistema: " + capacidadMaxima);
+        System.out.println("Tiempo total a simular: " + tiempoTotal);
+        System.out.println("La unidad de tiempo total: " + unidadTiempoTotal);
+        System.out.println("Tiempo Secundario a Simular " + tiempoSecundario);
+        System.out.println("La unidad de tiempo secundaria: " + unidadTiempoSecundaria);
+        System.out.println("Cantidad de servidores: " + cantidadServidores);
+        System.out.println("Costo de servidores: " + costoServidor);
+        System.out.println("Costo de esperar un cliente: " + costoEsperaCliente);
+        System.out.println("\n** Distribucion de LLegadas **");
+        
+        int dayIndex = 1;
+        for ( Object objeto : distribucionLLegadasArray ){
+            
+            int [][] distribucion = (int [][]) objeto;
+            
+            System.out.println("\nDia Numero: " + dayIndex++);
+             for (int row = 0; row < distribucion.length; row++){
+               System.out.println("Cantidad: " + distribucion[row][0] + " - Probabilidad: " + distribucion[row][1] + "%");
+             }
+        
+        }
+        
+        System.out.println("\n** Distribucion de Servicios **");
+        
+         for (int row = 0; row < distribucionServicio.length; row++){
+            System.out.println("Cantidad: " + distribucionServicio[row][0] + " - Probabilidad: " + distribucionServicio[row][1] + "%");
+        }
+    };
+    
+    private void botonArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonArchivoActionPerformed
+        
+        String fileName = "datosbbva.json";
+        
+        URL path = Datos.class.getResource(fileName);
+        File file = new File(path.getFile());
+       //JSON parser object to parse read file
+        JSONParser jsonParser = new JSONParser();
+
+        
+        try (FileReader reader = new FileReader(file);){
+            
+            //JSON parser object to parse read file
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
             
-            JSONObject cicloPrincipalArchivo = (JSONObject) obj.get("cicloPrincipal");
-            int cicloPrincipal = Integer.parseInt(cicloPrincipalArchivo.get("valor").toString());
-            String unidadTiempo = cicloPrincipalArchivo.get("unidadTiempo").toString();
+            // Capacidad Maxima del sistema
+            int capacidadSistema = ((Long) obj.get("capacidadMaxima")).intValue();
+
+            // Tiempo total a simular
+             JSONObject tiempoTotal = (JSONObject) obj.get("tiempoTotal");
+            int cicloPrincipal =  ((Long) tiempoTotal.get("cantidad")).intValue();
+            String unidadTiempo = tiempoTotal.get("unidad").toString();
             
-            JSONObject cicloSecundarioArchivo = (JSONObject) obj.get("cicloSecundario");
-            int cicloSecundario = Integer.parseInt(cicloSecundarioArchivo.get("valor").toString());
-            String unidadTiempo2 = cicloSecundarioArchivo.get("unidadTiempo").toString();
+            // Tiempo secundario total a simular
+            JSONObject tiempoSecundario = (JSONObject) obj.get("tiempoSecundario");
+            int cicloSecundario = ((Long) tiempoSecundario.get("cantidad")).intValue();
+            String unidadTiempo2 = tiempoSecundario.get("unidad").toString();
             
-            int cantidadServidores =  Integer.parseInt(obj.get("cantidadServidores").toString());
-            
-            int costoServidor = Integer.parseInt(obj.get("costoServidor").toString());
-            
-            int costoEsperaCliente = Integer.parseInt(obj.get("costoEsperaCliente").toString());
-            
-            int capacidadSistema = Integer.parseInt(obj.get("capacidadSistema").toString());
-            
-            JSONArray jsonTiemposServicio = (JSONArray) obj.get("tiemposServicio");
-            Iterator<JSONObject> iteratorTs = jsonTiemposServicio.iterator();
-            int[][] tiemposServicio = new int[jsonTiemposServicio.size()][2];
-            int i = 0;
-            while(iteratorTs.hasNext()){
-                JSONObject tiempoServicio = iteratorTs.next();
-                tiemposServicio[i][0]= Integer.parseInt(tiempoServicio.get("tiempo").toString());
-                tiemposServicio[i][1]= Integer.parseInt(tiempoServicio.get("probabilidad").toString());
-                probabilidadTs+=tiemposServicio[i][1];
-                i++;
-            }
+            // Servidores
+            JSONObject servidores = (JSONObject) obj.get("servidores");
+            int cantidadServidores =  ((Long) servidores.get("cantidad")).intValue(); // Cantidad
+            int costoServidor =  ((Long) servidores.get("costo")).intValue(); // Cost
             
             
-            JSONArray jsonTiemposLlegada = (JSONArray) obj.get("tiemposLlegada");
-            Iterator<JSONObject> iteratorJson = jsonTiemposLlegada.iterator();
+            // Costo espera cliente
+            int costoEsperaCliente = ((Long) obj.get("costoEsperaCliente")).intValue();
+
+
+            // Distribucion de llegada
+            JSONArray distribucionLlegadaArray = (JSONArray) obj.get("distribucionLlegada");
             ArrayList<int[][]> dias = new ArrayList<int[][]>();
-            boolean probabilidadTlValida=true;
-            int sumProbabilidadTl=0;
-            while(iteratorJson.hasNext()){
-                sumProbabilidadTl = 0;
-                JSONObject objetoTiempo = iteratorJson.next();
-                JSONArray tiemposLlegadaArray = (JSONArray) objetoTiempo.get("tiempos");
-                Iterator<JSONObject> iterator = tiemposLlegadaArray.iterator();
-                int[][] tiemposLlegada = new int[tiemposLlegadaArray.size()][2];
-                int j=0;
+            
+            for ( Object dia : distribucionLlegadaArray ) {
+                // Dentro del objeto dia de la distribucion de llegada
+                                
+                JSONObject diaObj = (JSONObject) dia; // Cast del objeto dia
+                JSONArray tiemposArray = (JSONArray) diaObj.get("tiempos");
                 
-                while(iterator.hasNext()){
-                    JSONObject tiempoLlegada = iterator.next();
-                    tiemposLlegada[j][0]= Integer.parseInt(tiempoLlegada.get("valor").toString());
-                    tiemposLlegada[j][1]= Integer.parseInt(tiempoLlegada.get("probabilidad").toString());
-                    sumProbabilidadTl+= tiemposLlegada[j][1];
-                    j++;
-                }
-                if(sumProbabilidadTl!=100){
-                    probabilidadTlValida=false;
-                }
-                else{
+                int baseIndex = 0;
+                int[][] tiemposLlegada = new int[tiemposArray.size()][2];
+                
+                
+                 for( Object distribucion: tiemposArray ) {
+                    JSONObject distribucionObj = (JSONObject) distribucion; // Cast de distribucion al objeto 
+                    tiemposLlegada[ baseIndex ][0] = ((Long) distribucionObj.get("cantidad")).intValue();
+                    float probabilidadFloat =  ((Double) distribucionObj.get("probabilidad")).floatValue();
+                    tiemposLlegada[ baseIndex ][1] = Math.round(probabilidadFloat * 100);
+                    baseIndex++;
+                 }; 
+                 // Validacion de de la probabilidad de cada distribucion en la distribucion de llegadas
+                if (isDistributionValid(tiemposLlegada)){
                     dias.add(tiemposLlegada);
+                }else{
+                    JOptionPane.showMessageDialog(null, "La probabilidad de las tablas de distribucion de llegada debe ser 1");
+                    return;
                 }
+            };
+            
+            // Distribucion de servicio
+            JSONArray distribucionServicioArray = (JSONArray) obj.get("distribucionServicio");
+            int baseIndex = 0;
+            int[][] tiemposServicio = new int[distribucionServicioArray.size()][2];
+            for( Object distribucion: distribucionServicioArray ) {
+               JSONObject distribucionObj = (JSONObject) distribucion; // Cast de distribucion al objeto 
+               tiemposServicio[ baseIndex ][0]= ((Long) distribucionObj.get("tiempo")).intValue();
+                float probabilidadFloat =  ((Double) distribucionObj.get("probabilidad")).floatValue();
+                tiemposServicio[ baseIndex ][1] = Math.round(probabilidadFloat * 100);
+               baseIndex++;
+            };
+            
+            // Validacion de de la probabilidad de la distribucion de servicios
+            if (!isDistributionValid(tiemposServicio)){
+                JOptionPane.showMessageDialog(null, "La probabilidad de distribucion de servicio debe ser 1");
+                return;  
             }
             
-        if(probabilidadTs!=100 || !probabilidadTlValida ){
-            JOptionPane.showMessageDialog(null, "El porcentaje de probabilidad en las tablas debe ser 100");
-        }
-        else{
-            simulacion = new Simulacion(cicloPrincipal,cicloSecundario,unidadTiempo,unidadTiempo2,costoEsperaCliente,cantidadServidores,costoServidor,dias,tiemposServicio,capacidadSistema);
-            this.simulacion.Simular();   
-        }
-        } catch (Exception ex) {
-            System.out.println(ex);
-            JOptionPane.showMessageDialog(null, "Error de archivo");
+            printDataFromJsonFile(fileName, capacidadSistema,cicloPrincipal, unidadTiempo,cicloSecundario,unidadTiempo2,cantidadServidores,costoServidor,costoEsperaCliente, dias, tiemposServicio );
+             simulacion = new Simulacion(cicloPrincipal,cicloSecundario,unidadTiempo,unidadTiempo2,costoEsperaCliente,cantidadServidores,costoServidor,dias,tiemposServicio,capacidadSistema);
+             this.simulacion.Simular();   
+            
+//            Iterator<JSONObject> iteratorTs = distribucionServicioArray.iterator();
+           // int[][] tiemposServicio = new int[distribucionServicioArray.size()][2];
+//            int i = 0;
+//            while(iteratorTs.hasNext()){
+//                JSONObject tiempoServicio = iteratorTs.next();
+//                tiemposServicio[i][0]= Integer.parseInt(tiempoServicio.get("tiempo").toString());
+//                tiemposServicio[i][1]= Integer.parseInt(tiempoServicio.get("probabilidad").toString());
+//                probabilidadTs+=tiemposServicio[i][1];
+//                i++;
+//            }
+            
+            
+//            JSONArray jsonTiemposLlegada = (JSONArray) obj.get("tiemposLlegada");
+//            Iterator<JSONObject> iteratorJson = jsonTiemposLlegada.iterator();
+//            ArrayList<int[][]> dias = new ArrayList<int[][]>();
+//            boolean probabilidadTlValida=true;
+//            int sumProbabilidadTl=0;
+//            while(iteratorJson.hasNext()){
+//                sumProbabilidadTl = 0;
+//                JSONObject objetoTiempo = iteratorJson.next();
+//                JSONArray tiemposLlegadaArray = (JSONArray) objetoTiempo.get("tiempos");
+//                Iterator<JSONObject> iterator = tiemposLlegadaArray.iterator();
+//                int[][] tiemposLlegada = new int[tiemposLlegadaArray.size()][2];
+//                int j=0;
+//                
+//                while(iterator.hasNext()){
+//                    JSONObject tiempoLlegada = iterator.next();
+//                    tiemposLlegada[j][0]= Integer.parseInt(tiempoLlegada.get("valor").toString());
+//                    tiemposLlegada[j][1]= Integer.parseInt(tiempoLlegada.get("probabilidad").toString());
+//                    sumProbabilidadTl+= tiemposLlegada[j][1];
+//                    j++;
+//                }
+//                if(sumProbabilidadTl!=100){
+//                    probabilidadTlValida=false;
+//                }
+//                else{
+//                    dias.add(tiemposLlegada);
+//                }
+//            }
+            
+//            if(probabilidadTs!=100 || !probabilidadTlValida ){
+//                JOptionPane.showMessageDialog(null, "La probabilidad de las tablas debe ser 1");
+//            }
+//            else{
+//                simulacion = new Simulacion(cicloPrincipal,cicloSecundario,unidadTiempo,unidadTiempo2,costoEsperaCliente,cantidadServidores,costoServidor,dias,tiemposServicio,capacidadSistema);
+//                this.simulacion.Simular();   
+//            }
+        } catch (Exception e) {
+            System.out.println(e);
+            JOptionPane.showMessageDialog(null, "Error en el formato del archivo");
         }
     }//GEN-LAST:event_botonArchivoActionPerformed
 
