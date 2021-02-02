@@ -1,18 +1,18 @@
 package proyectosimulacion;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import proyectosimulacion.ResultadosData;
 import proyectosimulacion.gui.EstadisticasServidor;
 import proyectosimulacion.gui.Resultados;
 import proyectosimulacion.gui.MostrarTablaEventos;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Simulacion {
     private int tiempoSimulacion;
-    private int tiempoMax;
-    private int at;
-    private int dt;
+    private int tiempoSecundario;
+    private int AT;
+    private int DT;
     private int numeroEvento;
     private String tipoEvento;
     private int contadorCliente;
@@ -21,35 +21,72 @@ public class Simulacion {
     private int clientesEsperan;
     private int clientesNoAtendidos;
     private float probabilidadEsperar;
-    private float costoEspera;
+    private float costoEsperaCliente;
     private float porcentajeUtilGeneral;
     private float tiempoPromedioSistema;
     private float tiempoPromedioCola;
     private float tiempoPromedioEspera;
     private float clientesPromedioSistema;
     private float clientesPromedioCola;
-    private float cantidadMaxSistema;
-    private int tiempoMaxSimulacion;
-    private String unidadTiempo1;
-    private String unidadTiempo2;
+    private float capacidadMaxima;
+    private int tiempoTotal;
+    private String unidadTiempoTotal;
+    private String unidadTiempoSecundaria;
     private List<Servidor> servidores;
     private List<Cliente> cola;
-    private ArrayList<int[][]> dias;
-    private int[][] tiemposServicio;
-    private int[][] servidorArchivo;
-    //private Output output; Busca el output
+    private ArrayList<int[][]> distribucionLlegadas;
+    private int[][] distribucionServicio;
+    
     private String numAleatorioTELL;
     private String numAleatorioST;
     private String tell;
     private String st;
     private int numeroDeServidores;
-
-    public Simulacion(int tiempoMaxSimulacion,int tiempoMax,String unidadTiempo1,String unidadTiempo2,float costoEspera,int cantidadServidores, int costoServidores,ArrayList<int[][]> dias,int[][] tiemposServicio,int cantidadMaxSistema) {
+    
+    public Simulacion (
+        int capacidadMaxima, 
+        int tiempoTotal, 
+        String unidadTiempoTotal, 
+        int tiempoSecundario, 
+        String unidadTiempoSecundaria,
+        int cantidadServidores,
+        int costoServidor,
+        int costoEsperaCliente,
+        ArrayList distribucionLlegadasArray,
+        int [][] distribucionServicio
+    ){
+        
+       // Parametos de entrada de archivos
+        this.capacidadMaxima = capacidadMaxima;
+        this.tiempoTotal = tiempoTotal;
+        this.unidadTiempoTotal = unidadTiempoTotal; 
+        this.tiempoSecundario = tiempoSecundario;
+        this.unidadTiempoSecundaria = unidadTiempoSecundaria;
+        this.costoEsperaCliente = costoEsperaCliente;
+        
+        // Tablas de distribuciones
+        this.distribucionLlegadas = distribucionLlegadasArray;
+        this.distribucionServicio = distribucionServicio;
+        
+        initSimulationVariables( cantidadServidores, costoServidor );
+       
+    }
+    
+    public void initSimulationVariables (int cantidadServidores, int costoServidor){
+        
+         // Inicializacion para la simulacion
+        this.cola = new ArrayList();
+        this.servidores = new ArrayList();
+        this.numAleatorioTELL = "";
+        this.numAleatorioST = "";
+        this.numeroDeServidores = cantidadServidores;
+        this.st= "";
+        this.tell= "";
         this.tiempoSimulacion = 0;
-        this.at = 0;
-        this.dt = 9999;
+        this.AT = 0;
+        this.DT = 9999;
         this.numeroEvento = 0;
-        this.tipoEvento ="";
+        this.tipoEvento = "";
         this.contadorCliente = 0;
         this.clientesNoEsperan = 0;
         this.clientesEsperan = 0;
@@ -62,245 +99,31 @@ public class Simulacion {
         this.clientesPromedioCola = 0;
         this.clientesPromedioSistema = 0;
         this.clientesNoAtendidos = 0;
-        this.cantidadMaxSistema = cantidadMaxSistema;
-        this.costoEspera = costoEspera;
-        this.unidadTiempo1 = unidadTiempo1; 
-        this.unidadTiempo2 = unidadTiempo2;
-        this.cola = new ArrayList<Cliente>();
-        this.servidores = new ArrayList<Servidor>();
-        this.tiempoMax = tiempoMax;
-        this.tiempoMaxSimulacion = tiempoMaxSimulacion;
-        this.numAleatorioTELL ="";
-        this.numAleatorioST ="";
-        this.numeroDeServidores = cantidadServidores;
-        this.st="";
-        this.tell="";
-        switch (unidadTiempo1) {
+    
+          // Inicializacion lista de servidores
+        for (int i=0;i<cantidadServidores;i++) {
+            Servidor servidor = new Servidor(i, costoServidor);
+            this.servidores.add(servidor);
+        }     
+        
+        // Ajuste del tiempoTotal * unidad de tiempo
+        switch (unidadTiempoTotal) {
             case "week":  
-                this.tiempoMaxSimulacion*=5;
+                this.tiempoTotal*=5;
                 break;
             case "month":
-                this.tiempoMaxSimulacion*=20;
+                this.tiempoTotal*=20;
                 break;
             case "year":
-                this.tiempoMaxSimulacion*=240;
+                this.tiempoTotal*=240;
                 break;
             default:
                 break;
         }
-        
-        //this.output = new Output();
-        for (int i=0;i<cantidadServidores;i++) {
-            Servidor servidor = new Servidor(i, costoServidores);
-            this.servidores.add(servidor);
-        }        
-        this.dias= dias;
-        this.tiemposServicio= tiemposServicio;
-             
-    }
+    };
     
-    //INICIO SETTERS AND GETTERS//
-    public int getTiempoSimulacion() {
-        return tiempoSimulacion;
-    }
     
-    public void setTiempoSimulacion(int tiempoSimulacion) {
-        this.tiempoSimulacion = tiempoSimulacion;
-    }
 
-    public int getClientesNoAtendidos() {
-        return clientesNoAtendidos;
-    }
-
-    public void setClientesNoAtendidos(int clientesNoAtendidos) {
-        this.clientesNoAtendidos = clientesNoAtendidos;
-    }
-
-    public int getTiempoMaxSimulacion() {
-        return tiempoMaxSimulacion;
-    }
-
-    public void setTiempoMaxSimulacion(int tiempoMaxSimulacion) {
-        this.tiempoMaxSimulacion = tiempoMaxSimulacion;
-    }
-
-    public float getCantidadMaxSistema() {
-        return cantidadMaxSistema;
-    }
-
-    public void setCantidadMaxSistema(float cantidadMaxSistema) {
-        this.cantidadMaxSistema = cantidadMaxSistema;
-    }
-        
-    public float getClientesPromedioSistema() {
-        return clientesPromedioSistema;
-    }
-
-    public void setClientesPromedioSistema(float clientesPromedioSistema) {
-        this.clientesPromedioSistema = clientesPromedioSistema;
-    }
-
-    public float getClientesPromedioCola() {
-        return clientesPromedioCola;
-    }
-
-    public void setClientesPromedioCola(float clientesPromedioCola) {
-        this.clientesPromedioCola = clientesPromedioCola;
-    } 
-
-    public float getTiempoPromedioEspera() {
-        return tiempoPromedioEspera;
-    }
-
-    public void setTiempoPromedioEspera(float tiempoPromedioEspera) {
-        this.tiempoPromedioEspera = tiempoPromedioEspera;
-    }
-
-    public float getTiempoPromedioSistema() {
-        return tiempoPromedioSistema;
-    }
-
-    public void setTiempoPromedioSistema(float tiempoPromedioSistema) {
-        this.tiempoPromedioSistema = tiempoPromedioSistema;
-    }
-
-    public float getTiempoPromedioCola() {
-        return tiempoPromedioCola;
-    }
-
-    public void setTiempoPromedioCola(float tiempoPromedioCola) {
-        this.tiempoPromedioCola = tiempoPromedioCola;
-    }
-
-    public float getPorcentajeUtilGeneral() {
-        return porcentajeUtilGeneral;
-    }
-
-    public void setPorcentajeUtilGeneral(float porcentajeUtilGeneral) {
-        this.porcentajeUtilGeneral = porcentajeUtilGeneral;
-    }
-
-    public int getTiempoMax() {
-        return tiempoMax;
-    }
-
-    public void setTiempoMax(int tiempoMax) {
-        this.tiempoMax = tiempoMax;
-    }
-
-    public int getAt() {
-        return at;
-    }
-
-    public void setAt(int at) {
-        this.at = at;
-    }
-
-    public int getDt() {
-        return dt;
-    }
-
-    public void setDt(int dt) {
-        this.dt = dt;
-    }
-
-    public int getNumeroEvento() {
-        return numeroEvento;
-    }
-
-    public void setNumeroEvento(int numeroEvento) {
-        this.numeroEvento = numeroEvento;
-    }
-
-    public String getTipoEvento() {
-        return tipoEvento;
-    }
-
-    public void setTipoEvento(String tipoEvento) {
-        this.tipoEvento = tipoEvento;
-    }
-
-    public float getProbabilidadEsperar() {
-        return probabilidadEsperar;
-    }
-
-    public void setProbabilidadEsperar(float probabilidadEsperar) {
-        this.probabilidadEsperar = probabilidadEsperar;
-    }
-
-    public int getContadorCliente() {
-        return contadorCliente;
-    }
-
-    public void setContadorCliente(int contadorCliente) {
-        this.contadorCliente = contadorCliente;
-    }
-
-    public int getNumeroCliente() {
-        return numeroCliente;
-    }
-
-    public void setNumeroCliente(int numeroCliente) {
-        this.numeroCliente = numeroCliente;
-    }
-
-    public int getClientesNoEsperan() {
-        return clientesNoEsperan;
-    }
-
-    public void setClientesNoEsperan(int clientesNoEsperan) {
-        this.clientesNoEsperan = clientesNoEsperan;
-    }
-
-    public int getClientesEsperan() {
-        return clientesEsperan;
-    }
-
-    public void setClientesEsperan(int clientesEsperan) {
-        this.clientesEsperan = clientesEsperan;
-    }
-
-    public float getCostoEspera() {
-        return costoEspera;
-    }
-
-    public void setCostoEspera(float costoEspera) {
-        this.costoEspera = costoEspera;
-    }
-
-    public String getUnidadTiempo1() {
-        return unidadTiempo1;
-    }
-
-    public void setUnidadTiempo1(String unidadTiempo1) {
-        this.unidadTiempo1 = unidadTiempo1;
-    }
-
-    public String getUnidadTiempo2() {
-        return unidadTiempo2;
-    }
-
-    public void setUnidadTiempo2(String unidadTiempo2) {
-        this.unidadTiempo2 = unidadTiempo2;
-    }
-
-    public List<Servidor> getServidores() {
-        return servidores;
-    }
-
-    public void setServidores(List<Servidor> servidores) {
-        this.servidores = servidores;
-    }
-
-    public List<Cliente> getCola() {
-        return cola;
-    }
-
-    public void setCola(List<Cliente> cola) {
-        this.cola = cola;
-    }
-    
-    //FINAL SETTERS AND GETTERS//
     
     public int servidoresOcupados(List<Servidor> servidores){ // si todos los servidores estan ocupados devuelve 1
         int ocupados = 0;
@@ -349,16 +172,16 @@ public class Simulacion {
     public int generarTiempoServicio(){
         int numAleatorio =0;
         int limInf = 0;
-        int limSup = this.tiemposServicio[0][1]-1;
+        int limSup = this.distribucionServicio[0][1]-1;
         numAleatorio = generarNumeroAleatorio();       
-        for(int i=0; i<this.tiemposServicio.length ; i++){
+        for(int i=0; i<this.distribucionServicio.length ; i++){
             if(numAleatorio<=limSup && numAleatorio>=limInf){
                 this.numAleatorioST= Integer.toString(numAleatorio);
-                return this.tiemposServicio[i][0]; 
+                return this.distribucionServicio[i][0]; 
             }
-            if (i!=tiemposServicio.length-1){
+            if (i!=distribucionServicio.length-1){
                 limInf=limSup+1; 
-                limSup+=this.tiemposServicio[i+1][1];
+                limSup+=this.distribucionServicio[i+1][1];
             }
         }
         return 0;
@@ -370,18 +193,18 @@ public class Simulacion {
         int limSup = 0;
         numAleatorio = generarNumeroAleatorio();        
         
-        for(int i=0;i<this.dias.get(diaActual).length;i++){
-            limSup += this.dias.get(diaActual)[i][1]-1; 
+        for(int i=0;i<this.distribucionLlegadas.get(diaActual).length;i++){
+            limSup += this.distribucionLlegadas.get(diaActual)[i][1]-1; 
             if(numAleatorio<=limSup && numAleatorio>=limInf){
                 this.numAleatorioTELL= Integer.toString(numAleatorio);
-                return this.dias.get(diaActual)[i][0]; 
+                return this.distribucionLlegadas.get(diaActual)[i][0]; 
             }
             limInf = limSup+1;
         }        
         return 0;
     }
     
-    public int Simular(){        
+    public int iniciar(){        
         int salida=0;
         int menorDT=9999;
         int servidorLiberado=9999;
@@ -406,19 +229,18 @@ public class Simulacion {
         
         MostrarTablaEventos eventos = new MostrarTablaEventos (this.numeroDeServidores );
         
-        while (tiempoSimulacion<tiempoMaxSimulacion){           
+        while (tiempoSimulacion<this.tiempoTotal){           
             while (sigCiclo == 0){
-                String stringServidores = "";
                 salida=0;
                 menorDT=9999;
                 tiempoAnterior=tiempoSim;           
                 cEnSistema=clientesEnSistema;
                 lCola=longitudCola;
                 numeroEvento++;                
-                if (tiempoSim<tiempoMax && at<dt){
-                    if (clientesEnSistema<cantidadMaxSistema){
+                if ( tiempoSim<tiempoSecundario && AT < DT ){
+                    if (clientesEnSistema<capacidadMaxima){
                         tipoEvento="Llegada";
-                        tiempoSim=at;
+                        tiempoSim=AT;
                         contadorCliente++;
                         clientesEnSistema++;
                         numeroCliente=contadorCliente;
@@ -430,11 +252,11 @@ public class Simulacion {
                             clientesNoEsperan++;
                             cliente.setTiempoServicio(this.generarTiempoServicio());
                             this.st= Integer.toString(cliente.getTiempoServicio());
-                            dt=tiempoSim+cliente.getTiempoServicio();
-                            cliente.setTiempoSalida(dt);
+                            DT=tiempoSim+cliente.getTiempoServicio();
+                            cliente.setTiempoSalida(DT);
                             cliente.setTiempoEntreLlegada(this.generarTiempoEntreLlegadas(diaActual));
                             this.tell=Integer.toString(cliente.getTiempoEntreLlegada());
-                            at=tiempoSim+cliente.getTiempoEntreLlegada();
+                            AT=tiempoSim+cliente.getTiempoEntreLlegada();
                             cliente.setTiempoLlegadaServidor(tiempoSim);
                             for(Servidor i:servidores){
                                 if (i.getAtendiendo()!= null){    
@@ -444,19 +266,19 @@ public class Simulacion {
                                     }
                                 }
                             }
-                            dt=menorDT;                    
+                            DT=menorDT;                    
                         }
                         else{
                             cliente.setTiempoEntreLlegada(this.generarTiempoEntreLlegadas(diaActual));
                             this.tell=Integer.toString(cliente.getTiempoEntreLlegada());
-                            at=tiempoSim+cliente.getTiempoEntreLlegada();
+                            AT=tiempoSim+cliente.getTiempoEntreLlegada();
                             cola.add(cliente);
                             longitudCola++;
                             clientesEsperan++;  
                         }
                     }
                     else{
-                        at+=this.generarTiempoEntreLlegadas(diaActual);
+                        AT+=this.generarTiempoEntreLlegadas(diaActual);
                         clientesNoAtendidos++;
                     }
                 }
@@ -467,7 +289,7 @@ public class Simulacion {
                         tell="";
                         numAleatorioST="";
                         numAleatorioTELL="";
-                        tiempoSim=dt;
+                        tiempoSim=DT;
                         clientesEnSistema--;
                         for(Servidor i:servidores){
                             if (i.getAtendiendo()!= null){
@@ -496,8 +318,8 @@ public class Simulacion {
                                 clientesCincoMinutos++;
                             cola.get(0).setTiempoServicio(this.generarTiempoServicio());
                             this.st= Integer.toString(cola.get(0).getTiempoServicio());
-                            dt=tiempoSim+cola.get(0).getTiempoServicio();
-                            cola.get(0).setTiempoSalida(dt);
+                            DT=tiempoSim+cola.get(0).getTiempoServicio();
+                            cola.get(0).setTiempoSalida(DT);
                             servidores.get(servidorLiberado).setAtendiendo(cola.get(0));
                             servidores.get(servidorLiberado).setServerStatus(1);
                             cola.get(0).setTiempoLlegadaServidor(tiempoSim);
@@ -506,7 +328,7 @@ public class Simulacion {
                         else{
                             menorDT=9999;
                             if (servidoresDesocupados(servidores)==1){
-                                dt=9999;
+                                DT=9999;
                             }
                             else{
                                 for(Servidor i:servidores){
@@ -516,10 +338,10 @@ public class Simulacion {
                                         }
                                     }
                                 }
-                                dt=menorDT;
+                                DT=menorDT;
                             }
                         }
-                        if (tiempoSim>=tiempoMax && clientesEnSistema==0){
+                        if (tiempoSim>=tiempoSecundario && clientesEnSistema==0){
                             sigCiclo = 1;
                             if (diaActual != 4)
                                 diaActual++; 
@@ -531,15 +353,18 @@ public class Simulacion {
                 }
                 cPromedioSistema += (tiempoSim-tiempoAnterior)*cEnSistema;
                 cPromedioCola += (tiempoSim-tiempoAnterior)*lCola;              
-                for(Servidor i : servidores){
-                    stringServidores += "S" + Integer.toString(i.getNroServidor()+1) + ": " + Integer.toString(i.getServerStatus()) + " ";
-                    
-                }
                 
-                eventos.agregarFila(numeroEvento, tipoEvento, numeroCliente, tiempoSim, numAleatorioTELL,tell,numAleatorioST,st, longitudCola, at, servidores);
-                
-                //output.setVisible(true);
-                //output.agregarFila(numeroEvento, tipoEvento, numeroCliente, tiempoSim,stringServidores,longitudCola,numAleatorioTELL,tell,numAleatorioST,st,at, dt);               
+                eventos.agregarFila(numeroEvento, 
+                    tipoEvento, 
+                    numeroCliente, 
+                    tiempoSim, 
+                    numAleatorioTELL,
+                    tell,numAleatorioST,
+                    st, 
+                    longitudCola, 
+                    AT, 
+                    servidores
+                );                
             }            
             tiempoSimulacion++;
             contCliente+=contadorCliente;
@@ -569,8 +394,8 @@ public class Simulacion {
             cPromedioCola = 0;
             contadorCliente = 0;
             tiempoSim = 0;
-            at = 0;
-            dt = 9999;
+            AT = 0;
+            DT = 9999;
             numeroEvento = 0;
             longitudCola = 0;
             
@@ -598,16 +423,7 @@ public class Simulacion {
             estadisticasServidores+="Costo del servidor " + String.valueOf(i.getNroServidor()) + ": " + i.getCostoTotalServidor() + "\n";
         }                         
         porcentajeUtilGeneral/=servidores.size();
-        
-       
-        // Imprime Datos 
-        
-        /*output.imprimirDatosEntrada(this.tiempoSimulacion, this.tiempoMax, unidadTiempo1, unidadTiempo2, costoEspera,this.dias.get(diaActual),tiemposServicio,this.cantidadMaxSistema);
-        output.imprimirEstadisticas(clientesNoEsperan, clientesNoAtendidos, probabilidadEsperar, clientesPromedioSistema, clientesPromedioCola, 
-                tiempoPromedioSistema, tiempoPromedioCola, tiempoPromedioEspera, porcentajeUtilGeneral,contCliente,tiempoOciosoServidores,probabilidadEsperaCincoMinutos);
-        output.imprimirEstadisticasServidores(estadisticasServidores);
-        output.cerrarWriter(); */
-        
+           
         EstadisticasServidor stats = new EstadisticasServidor(servidores);
         
         ResultadosData data = new ResultadosData(
@@ -621,7 +437,7 @@ public class Simulacion {
            String.format("%2.02f", tiempoPromedioEspera), // Segunda entrega
            String.format("%2.02f", porcentajeUtilGeneral),
            contCliente,
-           String.format("%2.02f", tiempoOciosoServidores) + ' ' + unidadTiempo2,
+           String.format("%2.02f", tiempoOciosoServidores) + ' ' + unidadTiempoSecundaria,
            String.format("%2.02f", probabilidadEsperaCincoMinutos)     
          );
                  

@@ -540,33 +540,31 @@ public class Inicio extends javax.swing.JFrame {
             JSONObject obj = (JSONObject) jsonParser.parse(reader);
             
             // Capacidad Maxima del sistema
-            int capacidadSistema = ((Long) obj.get("capacidadMaxima")).intValue();
+            int capacidadMaxima = ((Long) obj.get("capacidadMaxima")).intValue();
 
             // Tiempo total a simular
-             JSONObject tiempoTotal = (JSONObject) obj.get("tiempoTotal");
-            int cicloPrincipal =  ((Long) tiempoTotal.get("cantidad")).intValue();
-            String unidadTiempo = tiempoTotal.get("unidad").toString();
+             JSONObject tiempoTotalObj = (JSONObject) obj.get("tiempoTotal");
+            int tiempoTotal =  ((Long) tiempoTotalObj.get("cantidad")).intValue();
+            String unidadTiempoTotal = tiempoTotalObj.get("unidad").toString();
             
             // Tiempo secundario total a simular
-            JSONObject tiempoSecundario = (JSONObject) obj.get("tiempoSecundario");
-            int cicloSecundario = ((Long) tiempoSecundario.get("cantidad")).intValue();
-            String unidadTiempo2 = tiempoSecundario.get("unidad").toString();
+            JSONObject tiempoSecundarioObj = (JSONObject) obj.get("tiempoSecundario");
+            int tiempoSecundario = ((Long) tiempoSecundarioObj.get("cantidad")).intValue();
+            String unidadTiempoSecundaria = tiempoSecundarioObj.get("unidad").toString();
             
             // Servidores
             JSONObject servidores = (JSONObject) obj.get("servidores");
             int cantidadServidores =  ((Long) servidores.get("cantidad")).intValue(); // Cantidad
             int costoServidor =  ((Long) servidores.get("costo")).intValue(); // Cost
-            
-            
+                        
             // Costo espera cliente
             int costoEsperaCliente = ((Long) obj.get("costoEsperaCliente")).intValue();
 
-
             // Distribucion de llegada
-            JSONArray distribucionLlegadaArray = (JSONArray) obj.get("distribucionLlegada");
-            ArrayList<int[][]> dias = new ArrayList<int[][]>();
+            JSONArray distribucionLlegadaJSONArray = (JSONArray) obj.get("distribucionLlegada");
+            ArrayList<int[][]> distribucionLlegadasArray = new ArrayList<int[][]>();
             
-            for ( Object dia : distribucionLlegadaArray ) {
+            for ( Object dia : distribucionLlegadaJSONArray ) {
                 // Dentro del objeto dia de la distribucion de llegada
                                 
                 JSONObject diaObj = (JSONObject) dia; // Cast del objeto dia
@@ -585,7 +583,7 @@ public class Inicio extends javax.swing.JFrame {
                  }; 
                  // Validacion de de la probabilidad de cada distribucion en la distribucion de llegadas
                 if (isDistributionValid(tiemposLlegada)){
-                    dias.add(tiemposLlegada);
+                    distribucionLlegadasArray.add(tiemposLlegada);
                 }else{
                     JOptionPane.showMessageDialog(null, "La probabilidad de las tablas de distribucion de llegada debe ser 1");
                     return;
@@ -593,74 +591,52 @@ public class Inicio extends javax.swing.JFrame {
             };
             
             // Distribucion de servicio
-            JSONArray distribucionServicioArray = (JSONArray) obj.get("distribucionServicio");
+            JSONArray distribucionServicioJSONArray = (JSONArray) obj.get("distribucionServicio");
             int baseIndex = 0;
-            int[][] tiemposServicio = new int[distribucionServicioArray.size()][2];
-            for( Object distribucion: distribucionServicioArray ) {
+            int[][] distribucionServicio = new int[distribucionServicioJSONArray.size()][2];
+            for( Object distribucion: distribucionServicioJSONArray ) {
                JSONObject distribucionObj = (JSONObject) distribucion; // Cast de distribucion al objeto 
-               tiemposServicio[ baseIndex ][0]= ((Long) distribucionObj.get("tiempo")).intValue();
+               distribucionServicio[ baseIndex ][0]= ((Long) distribucionObj.get("tiempo")).intValue();
                 float probabilidadFloat =  ((Double) distribucionObj.get("probabilidad")).floatValue();
-                tiemposServicio[ baseIndex ][1] = Math.round(probabilidadFloat * 100);
+                distribucionServicio[ baseIndex ][1] = Math.round(probabilidadFloat * 100);
                baseIndex++;
             };
             
             // Validacion de de la probabilidad de la distribucion de servicios
-            if (!isDistributionValid(tiemposServicio)){
+            if (!isDistributionValid(distribucionServicio)){
                 JOptionPane.showMessageDialog(null, "La probabilidad de distribucion de servicio debe ser 1");
                 return;  
             }
             
-            printDataFromJsonFile(fileName, capacidadSistema,cicloPrincipal, unidadTiempo,cicloSecundario,unidadTiempo2,cantidadServidores,costoServidor,costoEsperaCliente, dias, tiemposServicio );
-             simulacion = new Simulacion(cicloPrincipal,cicloSecundario,unidadTiempo,unidadTiempo2,costoEsperaCliente,cantidadServidores,costoServidor,dias,tiemposServicio,capacidadSistema);
-             this.simulacion.Simular();   
+            printDataFromJsonFile(
+                fileName, 
+                capacidadMaxima,
+                tiempoTotal, 
+                unidadTiempoTotal,
+                tiempoSecundario,
+                unidadTiempoSecundaria,
+                cantidadServidores,
+                costoServidor,
+                costoEsperaCliente, 
+                distribucionLlegadasArray, 
+                distribucionServicio 
+            );
             
-//            Iterator<JSONObject> iteratorTs = distribucionServicioArray.iterator();
-           // int[][] tiemposServicio = new int[distribucionServicioArray.size()][2];
-//            int i = 0;
-//            while(iteratorTs.hasNext()){
-//                JSONObject tiempoServicio = iteratorTs.next();
-//                tiemposServicio[i][0]= Integer.parseInt(tiempoServicio.get("tiempo").toString());
-//                tiemposServicio[i][1]= Integer.parseInt(tiempoServicio.get("probabilidad").toString());
-//                probabilidadTs+=tiemposServicio[i][1];
-//                i++;
-//            }
+            simulacion = new Simulacion (
+                capacidadMaxima,
+                tiempoTotal,
+                unidadTiempoTotal,
+                tiempoSecundario,
+                unidadTiempoSecundaria,
+                cantidadServidores,
+                costoServidor,
+                costoEsperaCliente, 
+                distribucionLlegadasArray,
+                distribucionServicio
+            );
             
+            this.simulacion.iniciar();   
             
-//            JSONArray jsonTiemposLlegada = (JSONArray) obj.get("tiemposLlegada");
-//            Iterator<JSONObject> iteratorJson = jsonTiemposLlegada.iterator();
-//            ArrayList<int[][]> dias = new ArrayList<int[][]>();
-//            boolean probabilidadTlValida=true;
-//            int sumProbabilidadTl=0;
-//            while(iteratorJson.hasNext()){
-//                sumProbabilidadTl = 0;
-//                JSONObject objetoTiempo = iteratorJson.next();
-//                JSONArray tiemposLlegadaArray = (JSONArray) objetoTiempo.get("tiempos");
-//                Iterator<JSONObject> iterator = tiemposLlegadaArray.iterator();
-//                int[][] tiemposLlegada = new int[tiemposLlegadaArray.size()][2];
-//                int j=0;
-//                
-//                while(iterator.hasNext()){
-//                    JSONObject tiempoLlegada = iterator.next();
-//                    tiemposLlegada[j][0]= Integer.parseInt(tiempoLlegada.get("valor").toString());
-//                    tiemposLlegada[j][1]= Integer.parseInt(tiempoLlegada.get("probabilidad").toString());
-//                    sumProbabilidadTl+= tiemposLlegada[j][1];
-//                    j++;
-//                }
-//                if(sumProbabilidadTl!=100){
-//                    probabilidadTlValida=false;
-//                }
-//                else{
-//                    dias.add(tiemposLlegada);
-//                }
-//            }
-            
-//            if(probabilidadTs!=100 || !probabilidadTlValida ){
-//                JOptionPane.showMessageDialog(null, "La probabilidad de las tablas debe ser 1");
-//            }
-//            else{
-//                simulacion = new Simulacion(cicloPrincipal,cicloSecundario,unidadTiempo,unidadTiempo2,costoEsperaCliente,cantidadServidores,costoServidor,dias,tiemposServicio,capacidadSistema);
-//                this.simulacion.Simular();   
-//            }
         } catch (Exception e) {
             System.out.println(e);
             JOptionPane.showMessageDialog(null, "Error en el formato del archivo");
