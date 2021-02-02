@@ -6,6 +6,7 @@
 package proyectosimulacion.gui;
 
 import java.util.List;
+import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
 import proyectosimulacion.Servidor;
 
@@ -33,6 +34,7 @@ public class EstadisticasServidor extends javax.swing.JFrame {
         }
         tablaStats.setModel(model);
         this.setLocationRelativeTo(null);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     }
 
     /**

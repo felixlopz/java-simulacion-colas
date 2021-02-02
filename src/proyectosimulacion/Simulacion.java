@@ -76,14 +76,14 @@ public class Simulacion {
         this.st="";
         this.tell="";
         switch (unidadTiempo1) {
-            case "semana    ":  
-                this.tiempoMaxSimulacion*=7;
+            case "week":  
+                this.tiempoMaxSimulacion*=5;
                 break;
-            case "mes":
-                this.tiempoMaxSimulacion*=30;
+            case "month":
+                this.tiempoMaxSimulacion*=20;
                 break;
-            case "ano":
-                this.tiempoMaxSimulacion*=360;
+            case "year":
+                this.tiempoMaxSimulacion*=240;
                 break;
             default:
                 break;
