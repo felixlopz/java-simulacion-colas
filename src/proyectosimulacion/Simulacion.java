@@ -176,6 +176,22 @@ public class Simulacion {
         return lowestValue;
     }
     
+    public Servidor getServerWithLowestDT ( List<Servidor> servidores, int comparator){
+    
+        int lowestValue = comparator;        
+        Servidor lowestServer = null;
+        
+        for(Servidor server:servers){
+            if ( server.getAtendiendo() != null ){    
+                if( server.getAtendiendo().getTiempoSalida() < lowestValue){
+                    lowestValue = server.getAtendiendo().getTiempoSalida();
+                    lowestServer = server;
+                }
+            }
+        }
+        return lowestServer;
+    };
+    
     public int generarTiempoServicio(){
         int numAleatorio =0;
         int limInf = 0;
@@ -213,9 +229,7 @@ public class Simulacion {
     
     public int start(){     
         
-        int salida= 0;
         int menorDT= 9999;
-        int servidorLiberado = 9999;
         int clientesEnSistema = 0;
         int servidorEscogido = 0;
         int longitudCola = 0;
@@ -227,7 +241,7 @@ public class Simulacion {
         float tPromedioSistema = 0;
         float cPromedioSistema = 0;
         float cPromedioCola = 0;
-        int tiempoTotal=  0;        
+        int tiempoTotal =  0;        
         int sigCiclo = 0;
         int cEnSistema = 0;
         int lCola = 0;
@@ -239,11 +253,12 @@ public class Simulacion {
         
         while ( this.actualTime < this.tiempoTotal ){           
             while ( sigCiclo == 0 ){
-                salida=0;
-                menorDT=9999;
-                tiempoAnterior=tiempoSim;           
-                cEnSistema=clientesEnSistema;
-                lCola=longitudCola;
+                
+                // Inicializacion
+                menorDT = 9999;
+                tiempoAnterior = tiempoSim;           
+                cEnSistema = clientesEnSistema;
+                lCola = longitudCola;
                 this.eventNumber++;          
                 
                  // Condicion para procesar salidas o llegadas
@@ -329,78 +344,67 @@ public class Simulacion {
                         // Establecemos DT
                         tiempoSim = this.DT;
                         
-                        for( Servidor i: this.servers ){
-                            if ( i.getAtendiendo() != null ){
-                                salida = 1;
-                                if(i.getAtendiendo().getTiempoSalida() < menorDT){
-                                    menorDT = i.getAtendiendo().getTiempoSalida();
-                                    servidorLiberado = i.getNroServidor();
-                                }
-                            }
-                        }
-                        
-                        if ( salida == 1 ){
+                        // Limpieando servidor utilizado y cliente
+                        Servidor freeServer = getServerWithLowestDT(this.servers, menorDT);
+                        if ( freeServer != null){
                             
-                            this.servers.get(servidorLiberado).setTiempoUtil(
-                                tiempoSim - this.servers.get(servidorLiberado).getAtendiendo().getTiempoLlegadaServidor()
-                            );
+                            freeServer.setTiempoUtil(tiempoSim - freeServer.getAtendiendo().getTiempoLlegadaServidor());
+                            freeServer.getAtendiendo().setTiempoSalida( tiempoSim );
+                            this.clienteNumber = freeServer.getAtendiendo().getNroCliente();
                             
-                            this.servers.get(servidorLiberado).getAtendiendo().setTiempoSalida( tiempoSim );
-                            this.clienteNumber = this.servers.get(servidorLiberado).getAtendiendo().getNroCliente();
-                            tPromedioSistema += this.servers.get(servidorLiberado).getAtendiendo().getTiempoSalida()-
-                            this.servers.get(servidorLiberado).getAtendiendo().getTiempoLlegada();
-                            tPromedioCola += this.servers.get(servidorLiberado).getAtendiendo().getTiempoCola();
-                            this.servers.get(servidorLiberado).setServerStatus(0);
-                            this.servers.get(servidorLiberado).setAtendiendo(null);
+                            // Sumando al promedio de tiempos
+                            tPromedioSistema += freeServer.getAtendiendo().getTiempoSalida()- freeServer.getAtendiendo().getTiempoLlegada();
+                            tPromedioCola += freeServer.getAtendiendo().getTiempoCola();
                             
-                        }
+                            freeServer.setServerStatus(0);
+                            freeServer.setAtendiendo(null);
+                        }          
                         
                         if ( longitudCola > 0){ // Verificacion el tamano de la cola 
                             longitudCola--;
                             
                             int index = 0;
+                            Cliente leavingClient = this.queue.get(index);
                             
-                           
                             // Establecemos el tiempo en cola para el cliente
-                            this.queue.get(index).setTiempoCola( tiempoSim - this.queue.get(index).getTiempoLlegada() );
-                            if (this.queue.get(index).getTiempoCola() > 5)
+                            leavingClient.setTiempoCola( tiempoSim - leavingClient.getTiempoLlegada() );
+                            if (leavingClient.getTiempoCola() > 5)
                                 clientesCincoMinutos++;
                             
                             // Generamos el tiempo de servicio
-                            this.queue.get(index).setTiempoServicio( this.generarTiempoServicio() );
-                            this.TS = Integer.toString(queue.get(index).getTiempoServicio());
+                            leavingClient.setTiempoServicio( this.generarTiempoServicio() );
+                            this.TS = Integer.toString(leavingClient.getTiempoServicio());
                             
                             // Eablecemos DT
-                            this.DT = tiempoSim + this.queue.get(index).getTiempoServicio();
+                            this.DT = tiempoSim + leavingClient.getTiempoServicio();
                             
-                            this.queue.get(index).setTiempoSalida(this.DT); // Guardamos DT en el cliente
+                            leavingClient.setTiempoSalida(this.DT); // Guardamos DT en el cliente
                             
                             // Asignamos el cliente al un servidor
-                            this.servers.get(servidorLiberado).setAtendiendo(this.queue.get(index));
-                            this.servers.get(servidorLiberado).setServerStatus(1);
+                            freeServer.setAtendiendo(leavingClient);
+                            freeServer.setServerStatus(1);
                             
-                            this.queue.get(index).setTiempoLlegadaServidor(tiempoSim); // Establecemos tiempo llegada al servidor
+                            leavingClient.setTiempoLlegadaServidor(tiempoSim); // Establecemos tiempo llegada al servidor
                             this.queue.remove(index); // Eliminamos de la cola
                         }
-                        else{
+                        else{ // TamanoCola igual a 0
                             menorDT = 9999;
-                            if (areServersFree(this.servers)){
+                            if ( areServersFree(this.servers) ){
                                 this.DT = 9999;
                             }
                             else{
-                                for(Servidor i: this.servers){
-                                    if (i.getAtendiendo()!= null){    
-                                        if(i.getAtendiendo().getTiempoSalida()< menorDT){
-                                            menorDT= i.getAtendiendo().getTiempoSalida();
-                                        }
-                                    }
-                                }
+                                // Buscamos el menor DT
+                                menorDT = getLowestDT( this.servers, menorDT );
                                 this.DT = menorDT;
                             }
                         }
                         
-                        if (tiempoSim >= this.tiempoSecundario && clientesEnSistema ==0 ){
-                            sigCiclo = 1;
+                        // Verificamos el tiempo de la simulacion
+                        if ( tiempoSim >= this.tiempoSecundario && clientesEnSistema == 0 ){
+                            
+                            sigCiclo = 1; // Bandera ciclo
+                            
+                            // Cambiamos el dia de la distribucion de llegadas
                             if (diaActual != 4)
                                 diaActual++; 
                             else {
@@ -410,9 +414,11 @@ public class Simulacion {
                     }
                 }
                 
-                cPromedioSistema += (tiempoSim-tiempoAnterior)*cEnSistema;
-                cPromedioCola += (tiempoSim-tiempoAnterior)*lCola;              
+                // Promedios
+                cPromedioSistema += (tiempoSim - tiempoAnterior) * cEnSistema;
+                cPromedioCola += (tiempoSim - tiempoAnterior) * lCola;              
                 
+                // Escritura de la fila en la tabla de enventos
                 eventos.agregarFila(this.eventNumber, 
                     this.eventType, 
                     this.clienteNumber, 
@@ -431,9 +437,9 @@ public class Simulacion {
             this.actualTime++;
             contCliente += this.clienteCounter;
             clientesEnSistema = 0;
-            sigCiclo = 0;
+            sigCiclo = 0; // bandera ciclo
             if ( this.clientesEsperanCounter != 0){
-                tPromedioEspera=tPromedioCola / this.clientesEsperanCounter;
+                tPromedioEspera = tPromedioCola / this.clientesEsperanCounter;
             }
             else{
                 tPromedioEspera = 0;
@@ -446,9 +452,11 @@ public class Simulacion {
             tiempoTotal += tiempoSim;         
             this.tiempoEsperaProm += tPromedioEspera; 
             this.tiempoSistemaProm += tPromedioSistema;
-            this.tiempoColaProm+=tPromedioCola;
-            this.clientesSistemaProm+=cPromedioSistema;
-            this.clientesColaProm+=cPromedioCola;            
+            this.tiempoColaProm += tPromedioCola;
+            this.clientesSistemaProm += cPromedioSistema;
+            this.clientesColaProm += cPromedioCola; 
+            
+            // Reset de promedios y contadores
             tPromedioEspera = 0;
             tPromedioSistema = 0;
             tPromedioCola = 0;
@@ -461,7 +469,7 @@ public class Simulacion {
             this.eventNumber = 0;
             longitudCola = 0;
             
-            eventos.agregarFilaSeparadora();
+            eventos.agregarFilaSeparadora(); // Agregar fila para un nuevo dia
             
         }// Fin del tiempoTotal
         
