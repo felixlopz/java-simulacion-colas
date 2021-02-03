@@ -125,11 +125,43 @@ public class Simulacion {
         this.utilizacionServidoresPercentage = 0;
     
           // Inicializacion lista de servidores
-        for (int i=0;i<cantidadServidores;i++) {
-            Servidor servidor = new Servidor(i, costoServidor);
-            this.servers.add(servidor);
+        for (int index=0;index<cantidadServidores;index++) {
+            Servidor server = new Servidor(index, costoServidor);
+            this.servers.add(server);
         }     
         
+    };
+    
+    
+     public int getLowestDT ( List<Servidor> servidores, int comparator){
+    
+        int lowestValue = comparator;
+                
+        for(Servidor server:servers){
+            if ( server.getClient() != null ){    
+                if( server.getClient().getDT() < lowestValue){
+                    lowestValue = server.getClient().getDT();
+                    server.setDt(server.getClient().getDT());
+                }
+            }
+        }
+        return lowestValue;
+    }
+    
+    public Servidor getServerWithLowestDT ( List<Servidor> servidores, int comparator){
+    
+        int lowestValue = comparator;        
+        Servidor lowestServer = null;
+        
+        for(Servidor server:servers){
+            if ( server.getClient() != null ){    
+                if( server.getClient().getDT() < lowestValue){
+                    lowestValue = server.getClient().getDT();
+                    lowestServer = server;
+                }
+            }
+        }
+        return lowestServer;
     };
     
     
@@ -161,36 +193,7 @@ public class Simulacion {
         return null;
     }
     
-    public int getLowestDT ( List<Servidor> servidores, int comparator){
-    
-        int lowestValue = comparator;
-                
-        for(Servidor server:servers){
-            if ( server.getClient() != null ){    
-                if( server.getClient().getDT() < lowestValue){
-                    lowestValue = server.getClient().getDT();
-                    server.setDt(server.getClient().getDT());
-                }
-            }
-        }
-        return lowestValue;
-    }
-    
-    public Servidor getServerWithLowestDT ( List<Servidor> servidores, int comparator){
-    
-        int lowestValue = comparator;        
-        Servidor lowestServer = null;
-        
-        for(Servidor server:servers){
-            if ( server.getClient() != null ){    
-                if( server.getClient().getDT() < lowestValue){
-                    lowestValue = server.getClient().getDT();
-                    lowestServer = server;
-                }
-            }
-        }
-        return lowestServer;
-    };
+   
     
     public float getTiempoOciosoServidores (int tiempoTotal){
          float tiempoOciosoServidores = 0;
@@ -303,9 +306,9 @@ public class Simulacion {
             while ( !hasNextDay  ){
                 
                 // Inicializacion
+                clientesEnSistemaAux = clientesSistemaCounter;
                 lowestDT = 9999;
                 lasTimeAux = TM;           
-                clientesEnSistemaAux = clientesSistemaCounter;
                 queueLengthAux = queueLength;
                 this.eventNumber++;          
                 
