@@ -635,7 +635,7 @@ public class Inicio extends javax.swing.JFrame {
                 distribucionServicio
             );
             
-            this.simulacion.iniciar();   
+            this.simulacion.start();   
             
         } catch (Exception e) {
             System.out.println(e);
