@@ -1,5 +1,6 @@
 package proyectosimulacion;
 
+import java.awt.font.NumericShaper.Range;
 import proyectosimulacion.ResultadosData;
 import proyectosimulacion.gui.EstadisticasServidor;
 import proyectosimulacion.gui.Resultados;
@@ -133,7 +134,7 @@ public class Simulacion {
     };
     
     
-    public int randomNumber(){  
+    public int randomProbability(){  
         return (int) (Math.random() * 99);
     }
     
@@ -192,42 +193,90 @@ public class Simulacion {
         return lowestServer;
     };
     
-    public int generarTiempoServicio(){
-        int numAleatorio =0;
-        int limInf = 0;
-        int limSup = this.distribucionServicio[0][1]-1;
-        numAleatorio = randomNumber();       
-        for(int i=0; i<this.distribucionServicio.length ; i++){
-            if(numAleatorio<=limSup && numAleatorio>=limInf){
-                this.numeroAleatorioTS= Integer.toString(numAleatorio);
-                return this.distribucionServicio[i][0]; 
+    public float getTiempoOciosoServidores (int tiempoTotal){
+         float tiempoOciosoServidores = 0;
+            for (Servidor server: this.servers){                
+                tiempoOciosoServidores += tiempoTotal - server.getTiempoUtil();
             }
-            if (i!=distribucionServicio.length-1){
-                limInf=limSup+1; 
-                limSup+=this.distribucionServicio[i+1][1];
+        tiempoOciosoServidores = tiempoOciosoServidores / this.servers.size();
+        tiempoOciosoServidores = tiempoOciosoServidores / this.tiempoTotal; 
+        tiempoOciosoServidores = tiempoOciosoServidores / this.canitdadServidores;  
+        return tiempoOciosoServidores ;
+    };
+    
+    
+    public float getProbabilidadEsperarCincoMinutos (float cincoMinutosCounter, int clienteCounter  ){
+        return  cincoMinutosCounter / (float) clienteCounter;
+    }
+    
+    
+    public void initUtilizacionDeServidores(int tiempoTotal){
+        for(Servidor server: this.servers){
+           server.setPorcentajeUtil(tiempoTotal );
+           this. utilizacionServidoresPercentage += server.getPorcentajeUtil();
+           server.setCostoTotalServidor(server.getCostoServidor() * tiempoTotal);
+       }                         
+       this.utilizacionServidoresPercentage = this.utilizacionServidoresPercentage / this.servers.size();
+    
+    }
+    
+    public void initPromedios (){
+        this.tiempoEsperaProm = this.tiempoEsperaProm / this.actualTime; 
+        this.tiempoSistemaProm = this.tiempoSistemaProm / this.actualTime;
+        this.tiempoColaProm = this.tiempoColaProm / this.actualTime;
+        this.clientesSistemaProm = this.clientesSistemaProm / this.actualTime;
+        this.clientesColaProm = this.clientesColaProm / this.actualTime;
+    }
+    
+    public static boolean between(int i, int minValueInclusive, int maxValueInclusive) {
+        if (i >= minValueInclusive && i <= maxValueInclusive)
+            return true;
+        else
+            return false;
+    }
+    
+    public int getTS(){
+        int minValue = 0;
+        int maxValue = this.distribucionServicio[0][1];
+        
+        int randomNumber = randomProbability();       
+        for( int row = 0 ; row < this.distribucionServicio.length ; row++ ){
+            if(Simulacion.between(randomNumber, minValue, maxValue)){
+                this.numeroAleatorioTS= Integer.toString(randomNumber);
+                return this.distribucionServicio[row][0]; 
+            }
+            if ( row != distribucionServicio.length - 1 ){
+                minValue = maxValue + 1; 
+                maxValue += this.distribucionServicio[ row+1 ][1];
             }
         }
         return 0;
     }
  
-    public int generarTiempoEntreLlegadas(int diaActual){
-        int numAleatorio =0;
-        int limInf = 0;
-        int limSup = 0;
-        numAleatorio = randomNumber();        
+    public int getTE(int dia){
         
-        for(int i=0;i<this.distribucionLlegadas.get(diaActual).length;i++){
-            limSup += this.distribucionLlegadas.get(diaActual)[i][1]-1; 
-            if(numAleatorio<=limSup && numAleatorio>=limInf){
-                this.numeroAleatorioTE= Integer.toString(numAleatorio);
-                return this.distribucionLlegadas.get(diaActual)[i][0]; 
+        int [][] distribucion = this.distribucionLlegadas.get(dia);
+        
+        int minValue = 0;
+        int maxValue = distribucion[0][1];
+        
+        int randomNumber = randomProbability();       
+        for( int row = 0 ; row < distribucion.length ; row++ ){
+            if(Simulacion.between(randomNumber, minValue, maxValue)){
+                this.numeroAleatorioTE = Integer.toString(randomNumber);
+                return distribucion[row][0]; 
             }
-            limInf = limSup+1;
-        }        
+            if ( row != distribucion.length - 1 ){
+                minValue = maxValue + 1; 
+                maxValue += distribucion[ row+1 ][1];
+            }
+        }
         return 0;
     }
     
     public int start(){     
+        
+        
         
         int TM = 0;
         int lowestDT = 9999;
@@ -250,7 +299,6 @@ public class Simulacion {
         
         float clientesSistemaPromAux = 0;
         float clientesColaPromAux = 0;
-        
         
         MostrarTablaEventos eventos = new MostrarTablaEventos ( this.canitdadServidores );
         
@@ -287,7 +335,7 @@ public class Simulacion {
                             selectedServer.setAtendiendo(cliente); // Cliente atendio
 
                             // Genera tiempo de servicio
-                            int tiempoServicioAux = this.generarTiempoServicio();
+                            int tiempoServicioAux = this.getTS();
                             cliente.setTiempoServicio(tiempoServicioAux); 
                             this.TS = Integer.toString(tiempoServicioAux); 
                             
@@ -296,7 +344,7 @@ public class Simulacion {
                             cliente.setTiempoSalida(DT); 
                             
                             // Genera tiempo entre llegada
-                            int tiempoEntreLlegadaAuxiliar = this.generarTiempoEntreLlegadas(indexOfDay); 
+                            int tiempoEntreLlegadaAuxiliar = this.getTE(indexOfDay); 
                             cliente.setTiempoEntreLlegada( tiempoEntreLlegadaAuxiliar );
                             this.TE = Integer.toString(tiempoEntreLlegadaAuxiliar);
                             
@@ -316,7 +364,7 @@ public class Simulacion {
                             this.queue.add(cliente);
                             
                             // Generar tiempo entre llegada
-                            int tiempoEntreLlegadaAuxiliar = this.generarTiempoEntreLlegadas(indexOfDay); 
+                            int tiempoEntreLlegadaAuxiliar = this.getTE(indexOfDay); 
                             cliente.setTiempoEntreLlegada( tiempoEntreLlegadaAuxiliar );
                             this.TE = Integer.toString(tiempoEntreLlegadaAuxiliar);
                             
@@ -326,7 +374,7 @@ public class Simulacion {
                     }
                     else{
                         // Se aumenta el contador de clientes no atendidos
-                        AT += this.generarTiempoEntreLlegadas(indexOfDay ); // Se programa la siguiente llegada
+                        AT += this.getTE(indexOfDay ); // Se programa la siguiente llegada
                         this.clientesNoAtendidosCounter++;
                     }
                 }
@@ -375,7 +423,7 @@ public class Simulacion {
                                 clientesCincoMinutosCounter++;
                             
                             // Generamos el tiempo de servicio
-                            leavingClient.setTiempoServicio( this.generarTiempoServicio() );
+                            leavingClient.setTiempoServicio(this.getTS() );
                             this.TS = Integer.toString(leavingClient.getTiempoServicio());
                             
                             // Eablecemos DT
@@ -438,21 +486,19 @@ public class Simulacion {
             } // Fin del tiempo secundario
             
             this.actualTime++;
-            clienteCounter += this.clienteCounter;
-            clientesSistemaCounter = 0;
+     
             hasNextDay = false; // Bandera
-            if ( this.clientesEsperanCounter != 0){
-                tiempoEsperaPromAux = tiempoColaPromAux / this.clientesEsperanCounter;
-            }
-            else{
-                tiempoEsperaPromAux = 0;
-            }
             
-            tiempoSistemaPromAux /= this.clienteCounter;
-            tiempoColaPromAux /= this.clienteCounter;
-            clientesSistemaPromAux /= TM;
-            clientesColaPromAux /= TM;
-            tiempoTotalAux += TM;         
+            if ( this.clientesEsperanCounter != 0) tiempoEsperaPromAux = tiempoColaPromAux / this.clientesEsperanCounter;
+            else tiempoEsperaPromAux = 0;
+                
+            tiempoTotalAux += TM;   
+            tiempoSistemaPromAux = tiempoSistemaPromAux / this.clienteCounter;
+            tiempoColaPromAux = tiempoColaPromAux / this.clienteCounter;
+            clientesSistemaPromAux = clientesSistemaPromAux / TM;
+            clientesColaPromAux = clientesColaPromAux / TM;
+             
+            // Sumatoria de promedios
             this.tiempoEsperaProm += tiempoEsperaPromAux; 
             this.tiempoSistemaProm += tiempoSistemaPromAux;
             this.tiempoColaProm += tiempoColaPromAux;
@@ -460,6 +506,8 @@ public class Simulacion {
             this.clientesColaProm += clientesColaPromAux; 
             
             // Reset de promedios y contadores
+            clienteCounter += this.clienteCounter;
+            clientesSistemaCounter = 0;
             tiempoEsperaPromAux = 0;
             tiempoSistemaPromAux = 0;
             tiempoColaPromAux = 0;
@@ -477,29 +525,10 @@ public class Simulacion {
         }// Fin del tiempoTotal
         
         
-        float tiempoOciosoServidores = 0;
-            for (Servidor i: this.servers){                
-                tiempoOciosoServidores += tiempoTotalAux - i.getTiempoUtil();
-            }
-        tiempoOciosoServidores /= this.servers.size();
-        float auxiliarDivision = clienteCounter;
-        float probabilidadEsperaCincoMinutos = clientesCincoMinutosCounter/auxiliarDivision;
-        this.tiempoEsperaProm /= this.actualTime; 
-        this.tiempoSistemaProm /= this.actualTime;
-        this.tiempoColaProm/= this.actualTime;
-        this.clientesSistemaProm /= this.actualTime;
-        this.clientesColaProm /= this.actualTime;
-        this.probabilidadEsperar =((float) this.clientesEsperanCounter/clienteCounter);
-        
-        String estadisticasServidores="";      
-        for(Servidor i: this.servers){
-            i.setPorcentajeUtil(tiempoTotalAux );
-            estadisticasServidores+= "Porcentaje de utilizacion del servidor " + String.valueOf(i.getNroServidor()) + ": " + String.valueOf(i.getPorcentajeUtil()) + "\n";
-            this. utilizacionServidoresPercentage += i.getPorcentajeUtil();
-            i.setCostoTotalServidor(i.getCostoServidor() * tiempoTotalAux);
-            estadisticasServidores+="Costo del servidor " + String.valueOf(i.getNroServidor()) + ": " + i.getCostoTotalServidor() + "\n";
-        }                         
-        this.utilizacionServidoresPercentage /= this.servers.size();
+        this.probabilidadEsperar = ((float) this.clientesEsperanCounter / clienteCounter);
+            
+        initUtilizacionDeServidores(tiempoTotalAux);
+        initPromedios();
            
         EstadisticasServidor stats = new EstadisticasServidor(this.servers);
         
@@ -514,8 +543,8 @@ public class Simulacion {
            String.format("%2.02f", this.tiempoEsperaProm), // Segunda entrega
            String.format("%2.02f", this.utilizacionServidoresPercentage),
            clienteCounter,
-           String.format("%2.02f", tiempoOciosoServidores) + ' ' + this.unidadTiempoSecundaria,
-           String.format("%2.02f", probabilidadEsperaCincoMinutos)     
+           String.format("%2.02f", this.getTiempoOciosoServidores(tiempoTotalAux)) + ' ' + this.unidadTiempoSecundaria,
+           String.format("%2.02f", getProbabilidadEsperarCincoMinutos(clientesCincoMinutosCounter, clienteCounter))     
          );
                  
           new Resultados(this.actualTime, eventos, data, stats ).setVisible(true);

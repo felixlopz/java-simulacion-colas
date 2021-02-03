@@ -15,7 +15,6 @@
   "costoEsperaCliente":2,
   "distribucionLlegada":[
     {
-      "dia":"lunes",
       "tiempos":[
         {
           "cantidad":1,
@@ -40,7 +39,6 @@
       ]
     },
     {
-      "dia":"martes",
       "tiempos":[
         {
           "cantidad":4,
@@ -65,7 +63,6 @@
       ]
     },
     {
-      "dia":"miercoles",
       "tiempos":[
         {
           "cantidad":4,
@@ -86,7 +83,6 @@
       ]
     },
     {
-      "dia":"jueves",
       "tiempos":[
         {
           "cantidad":4,
@@ -107,7 +103,6 @@
       ]
     },
     {
-      "dia":"viernes",
       "tiempos":[
         {
           "cantidad":1,
