@@ -1,6 +1,6 @@
-package proyectosimulacion;
+package simulacion;
 
-import proyectosimulacion.gui.Inicio;
+import vistas.Inicio;
 
 public class ProyectoSimulacion {
     

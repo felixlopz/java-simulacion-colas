@@ -1,10 +1,10 @@
-package proyectosimulacion.gui;
+package vistas;
 
 import javax.swing.JDialog;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
-import proyectosimulacion.Servidor;
+import simulacion.Servidor;
 
 public class MostrarTablaEventos extends javax.swing.JFrame {
     int nroServidores;

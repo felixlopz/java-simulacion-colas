@@ -1,7 +1,7 @@
-package proyectosimulacion.gui;
+package vistas;
 
 import javax.swing.JDialog;
-import proyectosimulacion.ResultadosData;
+import simulacion.ResultadosData;
 
 
 

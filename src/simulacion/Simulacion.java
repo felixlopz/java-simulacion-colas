@@ -1,9 +1,9 @@
-package proyectosimulacion;
+package simulacion;
 
-import proyectosimulacion.ResultadosData;
-import proyectosimulacion.gui.EstadisticasServidor;
-import proyectosimulacion.gui.Resultados;
-import proyectosimulacion.gui.MostrarTablaEventos;
+import simulacion.ResultadosData;
+import vistas.EstadisticasServidor;
+import vistas.Resultados;
+import vistas.MostrarTablaEventos;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -15,7 +15,7 @@
   "costoEsperaCliente":2,
   "distribucionLlegada":[
     {
-      "tiempos":[
+      "distribucion":[
         {
           "cantidad":1,
           "probabilidad":0.5
@@ -39,7 +39,7 @@
       ]
     },
     {
-      "tiempos":[
+      "distribucion":[
         {
           "cantidad":4,
           "probabilidad":0.1
@@ -63,7 +63,7 @@
       ]
     },
     {
-      "tiempos":[
+      "distribucion":[
         {
           "cantidad":4,
           "probabilidad":0.15
@@ -83,7 +83,7 @@
       ]
     },
     {
-      "tiempos":[
+      "distribucion":[
         {
           "cantidad":4,
           "probabilidad":0.10
@@ -103,7 +103,7 @@
       ]
     },
     {
-      "tiempos":[
+      "distribucion":[
         {
           "cantidad":1,
           "probabilidad":0.50

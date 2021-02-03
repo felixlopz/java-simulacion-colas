@@ -1,4 +1,4 @@
-package proyectosimulacion;
+package simulacion;
 
 import java.util.ArrayList;
 

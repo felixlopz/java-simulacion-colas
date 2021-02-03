@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package proyectosimulacion.gui;
+package vistas;
 
 import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.table.DefaultTableModel;
-import proyectosimulacion.Servidor;
+import simulacion.Servidor;
 
 /**
  *

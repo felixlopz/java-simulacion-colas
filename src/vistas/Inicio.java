@@ -1,25 +1,21 @@
-package proyectosimulacion.gui;
+package vistas;
 
 import datos.Datos;
 import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import proyectosimulacion.Cliente;
-import proyectosimulacion.Servidor;
-import proyectosimulacion.TablaDistribucion;
-import proyectosimulacion.ResultadosData;
+import simulacion.Servidor;
+import simulacion.TablaDistribucion;
 
 import java.io.FileReader;
 import java.io.File;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Scanner;
-import javax.swing.JFileChooser;
-import javax.swing.filechooser.FileNameExtensionFilter;
+
 
 import org.json.simple.*;
 import org.json.simple.parser.JSONParser;
-import proyectosimulacion.Simulacion;
+import simulacion.Simulacion;
 
 public class Inicio extends javax.swing.JFrame {
     TablaDistribucion distribLlegadas;    
@@ -602,7 +598,7 @@ public class Inicio extends javax.swing.JFrame {
                 // Dentro del objeto dia de la distribucion de llegada
                                 
                 JSONObject diaObj = (JSONObject) dia; // Cast del objeto dia
-                JSONArray tiemposArray = (JSONArray) diaObj.get("tiempos");
+                JSONArray tiemposArray = (JSONArray) diaObj.get("distribucion");
                 
                 int baseIndex = 0;
                 int[][] tiemposLlegada = new int[tiemposArray.size()][2];

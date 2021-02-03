@@ -1,4 +1,4 @@
-package proyectosimulacion;
+package simulacion;
 
 public class Cliente {
     private int AT;
