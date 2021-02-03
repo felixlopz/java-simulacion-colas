@@ -40,7 +40,7 @@ public class Resultados extends javax.swing.JFrame {
          this.parametrosTablaBanco.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {"Total clientes en banco", data.getContCliente()},
-                {"Tiempo medio que pasa un cliente en el banco hasta ser atendido", null},
+                {"Tiempo medio que pasa un cliente en el banco hasta ser atendido", data.getTiempoPromedioCola()},
                 {"Probabilidad de que un cliente espere mas de cinco minutos", data.getProbabilidadEsperaCincoMinutos()},
                 {"Tiempo promedio que estan ociosos los empleados", data.getTiempoOciosoServidores()},
             },

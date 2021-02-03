@@ -1,8 +1,8 @@
 {
   "capacidadMaxima": 9999,
   "tiempoTotal":{
-    "cantidad": 6,    
-    "unidad":"month"
+    "cantidad": 120,    
+    "unidad":"day"
   },
   "tiempoSecundario":{
     "cantidad": 60,

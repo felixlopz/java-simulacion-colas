@@ -1,6 +1,5 @@
 package proyectosimulacion;
 
-import java.awt.font.NumericShaper.Range;
 import proyectosimulacion.ResultadosData;
 import proyectosimulacion.gui.EstadisticasServidor;
 import proyectosimulacion.gui.Resultados;
@@ -214,7 +213,7 @@ public class Simulacion {
         for(Servidor server: this.servers){
            server.setPorcentajeUtil(tiempoTotal );
            this. utilizacionServidoresPercentage += server.getPorcentajeUtil();
-           server.setCostoTotalServidor(server.getCostoServidor() * tiempoTotal);
+           server.setCostoTotalServidor((server.getCostoServidor() * tiempoTotal) / (this.tiempoTotal * this.tiempoSecundario));
        }                         
        this.utilizacionServidoresPercentage = this.utilizacionServidoresPercentage / this.servers.size();
     
@@ -275,8 +274,6 @@ public class Simulacion {
     }
     
     public int start(){     
-        
-        
         
         int TM = 0;
         int lowestDT = 9999;
