@@ -28,7 +28,7 @@ public class Servidor {
         this.totalCost = 0;
         this.utilTime = 0;
         this.client = null;
-        dt = 9999;
+        dt = 999;
     }
     
     
@@ -64,7 +64,7 @@ public class Servidor {
     public void removerCliente(){
         idCliente = 0;
         ss = false;
-        dt = 9999;
+        dt = 999;
     }
     
     public float getUtilPercentage() {

@@ -53,7 +53,7 @@ public class MostrarTablaEventos extends javax.swing.JFrame {
         fila[nroServidores + 8] = "0";
         fila[nroServidores + 9] = "0";
         for(int i = nroServidores + 10; i < cantColumnas; i++){
-            fila[i] = "9999";
+            fila[i] = "999";
         }
         model.addRow(fila);
         
@@ -104,7 +104,7 @@ public class MostrarTablaEventos extends javax.swing.JFrame {
         fila[nroServidores + 8] = "0";
         fila[nroServidores + 9] = "0";
         for(int i = nroServidores + 10; i < cantColumnas; i++){
-            fila[i] = "9999";
+            fila[i] = "999";
         }
         model.addRow(fila);
         

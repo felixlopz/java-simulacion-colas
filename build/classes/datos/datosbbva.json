@@ -1,16 +1,16 @@
 {
   "capacidadMaxima": 9999,
   "tiempoTotal":{
-    "cantidad": 100,    
+    "cantidad": 240,    
     "unidad":"day"
   },
   "tiempoSecundario":{
-    "cantidad": 30,
+    "cantidad": 420,
     "unidad":"minutos"
   },
   "servidores":{
-     "cantidad": 10,
-     "costo": 5
+     "cantidad": 3,
+     "costo": 7
    },
   "costoEsperaCliente":2,
   "distribucionLlegada":[
@@ -129,19 +129,19 @@
   ],
   "distribucionServicio":[
     {
-      "tiempo":5,
+      "tiempo": 3,
       "probabilidad":0.20
     },
     {
-      "tiempo":7,
+      "tiempo": 5,
       "probabilidad":0.30
     },
     {
-      "tiempo":8,
+      "tiempo": 6,
       "probabilidad":0.35
     },
     {
-      "tiempo":9,
+      "tiempo": 7,
       "probabilidad":0.15
     }
   ]

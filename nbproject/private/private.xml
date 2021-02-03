@@ -3,12 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/felix/Desktop/java-simulacion-colas-master/src/proyectosimulacion/gui/Inicio.java</file>
-            <file>file:/C:/Users/felix/Desktop/java-simulacion-colas-master/src/proyectosimulacion/Simulacion.java</file>
-            <file>file:/C:/Users/felix/Desktop/java-simulacion-colas-master/src/proyectosimulacion/gui/MostrarTablaEventos.java</file>
-            <file>file:/C:/Users/felix/Desktop/java-simulacion-colas-master/src/proyectosimulacion/gui/EstadisticasServidor.java</file>
-            <file>file:/C:/Users/felix/Desktop/java-simulacion-colas-master/src/proyectosimulacion/gui/Resultados.java</file>
-            <file>file:/C:/Users/felix/Desktop/java-simulacion-colas-master/src/proyectosimulacion/Cliente.java</file>
+            <file>file:/C:/Users/felix/Documents/ProyectFiles/proyectosimulacion/src/datos/datosbbva.json</file>
+            <file>file:/C:/Users/felix/Documents/ProyectFiles/proyectosimulacion/src/simulacion/Simulacion.java</file>
+            <file>file:/C:/Users/felix/Documents/ProyectFiles/proyectosimulacion/src/simulacion/Cliente.java</file>
+            <file>file:/C:/Users/felix/Documents/ProyectFiles/proyectosimulacion/src/simulacion/Servidor.java</file>
         </group>
     </open-files>
 </project-private>
