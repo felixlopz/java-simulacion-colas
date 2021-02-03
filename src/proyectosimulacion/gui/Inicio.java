@@ -480,6 +480,31 @@ public class Inicio extends javax.swing.JFrame {
     };
     
     
+    private int validateTotalTimeUnit (String unidadTiempoTotal){
+    
+          final int WEEK_VALUE = 5;
+          final int MONTH_VALUE = 20;
+          final int YEAR_VALUE = 240;
+          final String WEEK_STRING = "week";
+          final String MONTH_STRING = "month";
+          final String YEAR_STRING = "year";
+          final String DAY_STRING = "day";
+        
+        
+        switch ( unidadTiempoTotal ) {
+            case DAY_STRING:
+                return 1;
+            case WEEK_STRING:  
+                return WEEK_VALUE;
+            case MONTH_STRING:
+                return MONTH_VALUE;
+            case YEAR_STRING:
+                return YEAR_VALUE;
+            default:
+                return 0;
+        }
+    }
+    
     private void printDataFromJsonFile (
         String fileName,
         int capacidadMaxima, 
@@ -494,7 +519,7 @@ public class Inicio extends javax.swing.JFrame {
         int [][] distribucionServicio
     ){
         
-        System.out.println("Se leyo el archivo" + fileName + "exitosamente");
+        System.out.println("Se leyo el archivo" + fileName + " exitosamente");
         System.out.println("Capacida maxima del sistema: " + capacidadMaxima);
         System.out.println("Tiempo total a simular: " + tiempoTotal);
         System.out.println("La unidad de tiempo total: " + unidadTiempoTotal);
@@ -546,6 +571,15 @@ public class Inicio extends javax.swing.JFrame {
              JSONObject tiempoTotalObj = (JSONObject) obj.get("tiempoTotal");
             int tiempoTotal =  ((Long) tiempoTotalObj.get("cantidad")).intValue();
             String unidadTiempoTotal = tiempoTotalObj.get("unidad").toString();
+            
+            int multiplier = validateTotalTimeUnit(unidadTiempoTotal);
+            
+            if (multiplier == 0){
+                JOptionPane.showMessageDialog(null, "Unidad de tiempo total invalida");
+                return;
+            }
+            
+            tiempoTotal *= multiplier;
             
             // Tiempo secundario total a simular
             JSONObject tiempoSecundarioObj = (JSONObject) obj.get("tiempoSecundario");

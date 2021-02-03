@@ -1,15 +1,15 @@
 {
   "capacidadMaxima": 9999,
   "tiempoTotal":{
-    "cantidad": 240,    
-    "unidad":"dias"
+    "cantidad": 6,    
+    "unidad":"month"
   },
   "tiempoSecundario":{
-    "cantidad": 7,
-    "unidad":"horas"
+    "cantidad": 60,
+    "unidad":"minutos"
   },
   "servidores":{
-     "cantidad": 10,
+     "cantidad": 3,
      "costo": 5
    },
   "costoEsperaCliente":2,

@@ -12,16 +12,16 @@ public class Simulacion {
     
    // Parametros entrada archivo
     private final int capacidadMaxima;
-    private int tiempoTotal;
+    private final int tiempoTotal;
     private final String unidadTiempoTotal;
     private final int tiempoSecundario;
     private final String unidadTiempoSecundaria;
-    private int canitdadServidores;
+    private final int canitdadServidores;
     private final int costoEsperaCliente;
     
     // Distribuciones
-    private ArrayList<int[][]> distribucionLlegadas;
-    private int[][] distribucionServicio;
+    private final ArrayList<int[][]> distribucionLlegadas;
+    private final int[][] distribucionServicio;
 
     
     // Variables de simulacion
@@ -130,20 +130,6 @@ public class Simulacion {
             this.servers.add(servidor);
         }     
         
-        // Ajuste del tiempoTotal * unidad de tiempo
-        switch ( unidadTiempoTotal ) {
-            case "week":  
-                this.tiempoTotal *= 5;
-                break;
-            case "month":
-                this.tiempoTotal *= 20;
-                break;
-            case "year":
-                this.tiempoTotal *= 240;
-                break;
-            default:
-                break;
-        }
     };
     
     
@@ -226,7 +212,7 @@ public class Simulacion {
         float tPromedioSistema = 0;
         float cPromedioSistema = 0;
         float cPromedioCola = 0;
-        int tiempoTotal = 0;        
+        int tiempoTotal=  0;        
         int sigCiclo = 0;
         int cEnSistema = 0;
         int lCola = 0;
@@ -318,7 +304,7 @@ public class Simulacion {
                             servers.get(servidorLiberado).setServerStatus(0);
                             servers.get(servidorLiberado).setAtendiendo(null);
                         }
-                        if (longitudCola>0){
+                        if (longitudCola > 0){
                             longitudCola--;
                             queue.get(0).setTiempoCola(tiempoSim - queue.get(0).getTiempoLlegada());
                             if (queue.get(0).getTiempoCola() > 5)
