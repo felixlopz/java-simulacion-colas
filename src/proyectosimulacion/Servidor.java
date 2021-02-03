@@ -1,19 +1,17 @@
 package proyectosimulacion;
 
 public class Servidor {
+    private int number;
+    private int status;
+    private float utilPercentage;
     public int idCliente;
     public int dt;
     public boolean ss;
     public float costo;
-    
-    
-    private int nroServidor;
-    private int serverStatus;
-    private float porcentajeUtil;
-    private float costoServidor;
-    private float costoTotalServidor;
-    private int tiempoUtil;
-    private Cliente atendiendo;
+    private float cost;
+    private float totalCost;
+    private int utilTime;
+    private Cliente client;
     
     public Servidor(float costo){
         this.costo = costo;
@@ -23,13 +21,13 @@ public class Servidor {
     }
     
     public Servidor(int nroServidor,float costoServidor) {
-        this.nroServidor = nroServidor;
-        this.serverStatus = 0;
-        this.porcentajeUtil = 0;
-        this.costoServidor = costoServidor;
-        this.costoTotalServidor = 0;
-        this.tiempoUtil = 0;
-        this.atendiendo = null;
+        this.number = nroServidor;
+        this.status = 0;
+        this.utilPercentage = 0;
+        this.cost = costoServidor;
+        this.totalCost = 0;
+        this.utilTime = 0;
+        this.client = null;
         dt = 9999;
     }
     
@@ -69,60 +67,60 @@ public class Servidor {
         dt = 9999;
     }
     
-    public float getPorcentajeUtil() {
-        return porcentajeUtil;
+    public float getUtilPercentage() {
+        return utilPercentage;
     }
 
     public void setPorcentajeUtil(int tiempoMax){
-        porcentajeUtil = 100*tiempoUtil/tiempoMax;
+        utilPercentage = 100*utilTime/tiempoMax;
     }    
 
-    public int getTiempoUtil() {
-        return tiempoUtil;
+    public int getUtilTime() {
+        return utilTime;
     }
 
-    public void setTiempoUtil(int tiempoUtil) {
-        this.tiempoUtil += tiempoUtil;
+    public void setUtilTime(int utilTime) {
+        this.utilTime += utilTime;
     }
 
-    public float getCostoTotalServidor() {
-        return costoTotalServidor;
+    public float getTotalCost() {
+        return totalCost;
     }
 
-    public void setCostoTotalServidor(float costoTotalServidor) {
-        this.costoTotalServidor = costoTotalServidor;
+    public void setTotalCost(float totalCost) {
+        this.totalCost = totalCost;
     }
 
-    public int getNroServidor() {
-        return nroServidor;
+    public int getNumber() {
+        return number;
     }
 
-    public void setNroServidor(int nroServidor) {
-        this.nroServidor = nroServidor;
+    public void setNumber(int number) {
+        this.number = number;
     }
 
-    public int getServerStatus() {
-        return serverStatus;
+    public int getStatus() {
+        return status;
     }
 
-    public void setServerStatus(int serverStatus) {
-        this.serverStatus = serverStatus;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
-    public float getCostoServidor() {
-        return costoServidor;
+    public float getCost() {
+        return cost;
     }
 
-    public void setCostoServidor(float costoServidor) {
-        this.costoServidor = costoServidor;
+    public void setCost(float cost) {
+        this.cost = cost;
     }
 
-    public Cliente getAtendiendo() {
-        return atendiendo;
+    public Cliente getClient() {
+        return client;
     }
 
-    public void setAtendiendo(Cliente atendiendo) {
-        this.atendiendo = atendiendo;
+    public void setClient(Cliente client) {
+        this.client = client;
     }
     
 }

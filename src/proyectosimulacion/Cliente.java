@@ -1,78 +1,80 @@
 package proyectosimulacion;
 
 public class Cliente {
-    private int nroCliente;
-    private int tiempoEntreLlegada;
-    private int tiempoServicio;
-    private int tiempoLlegada;
-    private int tiempoSalida;
-    private int tiempoCola;
-    private int tiempoLlegadaServidor;
+    private int AT;
+    private int DT;
+    private int number;
+    private int TE;
+    private int TS;
+    private int queueTime;
+    private int ATserver;
 
     public Cliente(int nroCliente, int tiempoLlegada) {
-        this.nroCliente = nroCliente;
-        this.tiempoEntreLlegada = 0;
-        this.tiempoServicio = 0;
-        this.tiempoLlegada = tiempoLlegada;
-        this.tiempoSalida = 0;
-        this.tiempoCola = 0;
-        this.tiempoLlegadaServidor =0;
+        this.AT = tiempoLlegada;
+        this.DT = 0;
+        this.number = nroCliente;
+        this.TE = 0;
+        this.TS = 0;
+        this.queueTime = 0;
+        this.ATserver =0;
     }    
 
-    public int getTiempoLlegadaServidor() {
-        return tiempoLlegadaServidor;
+    public int getAT() {
+        return AT;
     }
 
-    public void setTiempoLlegadaServidor(int tiempoLlegadaServidor) {
-        this.tiempoLlegadaServidor = tiempoLlegadaServidor;
+    public void setAT(int AT) {
+        this.AT = AT;
     }
 
-    public int getNroCliente() {
-        return nroCliente;
+    public int getDT() {
+        return DT;
     }
 
-    public int getTiempoCola() {
-        return tiempoCola;
+    public void setDT(int DT) {
+        this.DT = DT;
     }
 
-    public void setTiempoCola(int tiempoCola) {
-        this.tiempoCola = tiempoCola;
+    public int getNumber() {
+        return number;
     }
 
-    public void setNroCliente(int nroCliente) {
-        this.nroCliente = nroCliente;
+    public void setNumber(int number) {
+        this.number = number;
     }
 
-    public int getTiempoEntreLlegada() {
-        return tiempoEntreLlegada;
+    public int getTE() {
+        return TE;
     }
 
-    public void setTiempoEntreLlegada(int tiempoEntreLlegada) {
-        this.tiempoEntreLlegada = tiempoEntreLlegada;
+    public void setTE(int TE) {
+        this.TE = TE;
     }
 
-    public int getTiempoServicio() {
-        return tiempoServicio;
+    public int getTS() {
+        return TS;
     }
 
-    public void setTiempoServicio(int tiempoServicio) {
-        this.tiempoServicio = tiempoServicio;
-    }   
-
-    public int getTiempoLlegada() {
-        return tiempoLlegada;
+    public void setTS(int TS) {
+        this.TS = TS;
     }
 
-    public void setTiempoLlegada(int tiempoLlegada) {
-        this.tiempoLlegada = tiempoLlegada;
+    public int getQueueTime() {
+        return queueTime;
     }
 
-    public int getTiempoSalida() {
-        return tiempoSalida;
+    public void setQueueTime(int queueTime) {
+        this.queueTime = queueTime;
     }
 
-    public void setTiempoSalida(int tiempoSalida) {
-        this.tiempoSalida = tiempoSalida;
+    public int getATserver() {
+        return ATserver;
     }
+
+    public void setATserver(int ATserver) {
+        this.ATserver = ATserver;
+    }
+
+    
         
 }

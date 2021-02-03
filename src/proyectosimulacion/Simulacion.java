@@ -139,14 +139,14 @@ public class Simulacion {
     
     public Boolean areServersFull( List<Servidor> servidores ){ 
         for (Servidor server : servidores){
-           if( server.getServerStatus() == 0) return false;
+           if( server.getStatus() == 0) return false;
         }
         return true;
     }
     
     public Boolean areServersFree( List<Servidor> servidores ){ 
         for (Servidor server : servidores){
-           if( server.getServerStatus() == 1) return false;
+           if( server.getStatus() == 1) return false;
         }
         return true;
     }
@@ -156,7 +156,7 @@ public class Simulacion {
             return null;
         }
         for (Servidor server:servidores){
-            if ( server.getServerStatus() == 0 ) return server;
+            if ( server.getStatus() == 0 ) return server;
         }            
         return null;
     }
@@ -166,10 +166,10 @@ public class Simulacion {
         int lowestValue = comparator;
                 
         for(Servidor server:servers){
-            if ( server.getAtendiendo() != null ){    
-                if( server.getAtendiendo().getTiempoSalida() < lowestValue){
-                    lowestValue = server.getAtendiendo().getTiempoSalida();
-                    server.setDt(server.getAtendiendo().getTiempoSalida());
+            if ( server.getClient() != null ){    
+                if( server.getClient().getDT() < lowestValue){
+                    lowestValue = server.getClient().getDT();
+                    server.setDt(server.getClient().getDT());
                 }
             }
         }
@@ -182,9 +182,9 @@ public class Simulacion {
         Servidor lowestServer = null;
         
         for(Servidor server:servers){
-            if ( server.getAtendiendo() != null ){    
-                if( server.getAtendiendo().getTiempoSalida() < lowestValue){
-                    lowestValue = server.getAtendiendo().getTiempoSalida();
+            if ( server.getClient() != null ){    
+                if( server.getClient().getDT() < lowestValue){
+                    lowestValue = server.getClient().getDT();
                     lowestServer = server;
                 }
             }
@@ -195,7 +195,7 @@ public class Simulacion {
     public float getTiempoOciosoServidores (int tiempoTotal){
          float tiempoOciosoServidores = 0;
             for (Servidor server: this.servers){                
-                tiempoOciosoServidores += tiempoTotal - server.getTiempoUtil();
+                tiempoOciosoServidores += tiempoTotal - server.getUtilTime();
             }
         tiempoOciosoServidores = tiempoOciosoServidores / this.servers.size();
         tiempoOciosoServidores = tiempoOciosoServidores / this.tiempoTotal; 
@@ -212,8 +212,8 @@ public class Simulacion {
     public void initUtilizacionDeServidores(int tiempoTotal){
         for(Servidor server: this.servers){
            server.setPorcentajeUtil(tiempoTotal );
-           this. utilizacionServidoresPercentage += server.getPorcentajeUtil();
-           server.setCostoTotalServidor((server.getCostoServidor() * tiempoTotal) / (this.tiempoTotal * this.tiempoSecundario));
+           this. utilizacionServidoresPercentage += server.getUtilPercentage();
+           server.setTotalCost((server.getCost() * tiempoTotal) / 60);
        }                         
        this.utilizacionServidoresPercentage = this.utilizacionServidoresPercentage / this.servers.size();
     
@@ -328,26 +328,26 @@ public class Simulacion {
                         if ( selectedServer != null ){  // Si encontro un servidor disponible
                             this.clientesNoEsperanCounter++; // Aumenta contador clientes que no esperan
  
-                            selectedServer.setServerStatus(1); // Cambiar estado del servidor
-                            selectedServer.setAtendiendo(cliente); // Cliente atendio
+                            selectedServer.setStatus(1); // Cambiar estado del servidor
+                            selectedServer.setClient(cliente); // Cliente atendio
 
                             // Genera tiempo de servicio
                             int tiempoServicioAux = this.getTS();
-                            cliente.setTiempoServicio(tiempoServicioAux); 
+                            cliente.setTS(tiempoServicioAux); 
                             this.TS = Integer.toString(tiempoServicioAux); 
                             
                             // Establecemos DT
                             this.DT = TM + tiempoServicioAux; 
-                            cliente.setTiempoSalida(DT); 
+                            cliente.setDT(DT); 
                             
                             // Genera tiempo entre llegada
                             int tiempoEntreLlegadaAuxiliar = this.getTE(indexOfDay); 
-                            cliente.setTiempoEntreLlegada( tiempoEntreLlegadaAuxiliar );
+                            cliente.setTE( tiempoEntreLlegadaAuxiliar );
                             this.TE = Integer.toString(tiempoEntreLlegadaAuxiliar);
                             
                             // Establecemos AT
                             this.AT = TM + tiempoEntreLlegadaAuxiliar;
-                            cliente.setTiempoLlegadaServidor(TM );
+                            cliente.setATserver(TM );
                             
                             // Se busca el proximo DT ( con el menor valor )
                             lowestDT = getLowestDT(this.servers, lowestDT );
@@ -362,7 +362,7 @@ public class Simulacion {
                             
                             // Generar tiempo entre llegada
                             int tiempoEntreLlegadaAuxiliar = this.getTE(indexOfDay); 
-                            cliente.setTiempoEntreLlegada( tiempoEntreLlegadaAuxiliar );
+                            cliente.setTE( tiempoEntreLlegadaAuxiliar );
                             this.TE = Integer.toString(tiempoEntreLlegadaAuxiliar);
                             
                             // Establecemos AT
@@ -396,16 +396,16 @@ public class Simulacion {
                         Servidor freeServer = getServerWithLowestDT(this.servers, lowestDT);
                         if ( freeServer != null){
                             
-                            freeServer.setTiempoUtil(TM - freeServer.getAtendiendo().getTiempoLlegadaServidor());
-                            freeServer.getAtendiendo().setTiempoSalida(TM );
-                            this.clienteNumber = freeServer.getAtendiendo().getNroCliente();
+                            freeServer.setUtilTime(TM - freeServer.getClient().getATserver());
+                            freeServer.getClient().setDT(TM );
+                            this.clienteNumber = freeServer.getClient().getNumber();
                             
                             // Sumando al promedio de tiempos
-                            tiempoSistemaPromAux += freeServer.getAtendiendo().getTiempoSalida()- freeServer.getAtendiendo().getTiempoLlegada();
-                            tiempoColaPromAux += freeServer.getAtendiendo().getTiempoCola();
+                            tiempoSistemaPromAux += freeServer.getClient().getDT()- freeServer.getClient().getAT();
+                            tiempoColaPromAux += freeServer.getClient().getQueueTime();
                             
-                            freeServer.setServerStatus(0);
-                            freeServer.setAtendiendo(null);
+                            freeServer.setStatus(0);
+                            freeServer.setClient(null);
                         }          
                         
                         if ( queueLength > 0){ // Verificacion el tamano de la cola 
@@ -415,24 +415,24 @@ public class Simulacion {
                             Cliente leavingClient = this.queue.get(index);
                             
                             // Establecemos el tiempo en cola para el cliente
-                            leavingClient.setTiempoCola(TM - leavingClient.getTiempoLlegada() );
-                            if (leavingClient.getTiempoCola() > 5)
+                            leavingClient.setQueueTime(TM - leavingClient.getAT() );
+                            if (leavingClient.getQueueTime() > 5)
                                 clientesCincoMinutosCounter++;
                             
                             // Generamos el tiempo de servicio
-                            leavingClient.setTiempoServicio(this.getTS() );
-                            this.TS = Integer.toString(leavingClient.getTiempoServicio());
+                            leavingClient.setTS(this.getTS() );
+                            this.TS = Integer.toString(leavingClient.getTS());
                             
                             // Eablecemos DT
-                            this.DT = TM + leavingClient.getTiempoServicio();
+                            this.DT = TM + leavingClient.getTS();
                             
-                            leavingClient.setTiempoSalida(this.DT); // Guardamos DT en el cliente
+                            leavingClient.setDT(this.DT); // Guardamos DT en el cliente
                             
                             // Asignamos el cliente al un servidor
-                            freeServer.setAtendiendo(leavingClient);
-                            freeServer.setServerStatus(1);
+                            freeServer.setClient(leavingClient);
+                            freeServer.setStatus(1);
                             
-                            leavingClient.setTiempoLlegadaServidor(TM); // Establecemos tiempo llegada al servidor
+                            leavingClient.setATserver(TM); // Establecemos tiempo llegada al servidor
                             this.queue.remove(index); // Eliminamos de la cola
                         }
                         else{ // TamanoCola igual a 0

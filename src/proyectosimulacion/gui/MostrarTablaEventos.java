@@ -132,7 +132,7 @@ public class MostrarTablaEventos extends javax.swing.JFrame {
         int index = 4;
         for( Object servidorObj : servidores){
            servidor = (Servidor) servidorObj;   
-           fila[index] = servidor.getServerStatus();
+           fila[index] = servidor.getStatus();
            index++;
         }
         

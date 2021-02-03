@@ -28,8 +28,8 @@ public class EstadisticasServidor extends javax.swing.JFrame {
        
         for (Object servidorObject : servidores){
             servidor = (Servidor) servidorObject;
-            fila [0] = servidor.getPorcentajeUtil() + "%" ;
-            fila [1] = servidor.getCostoTotalServidor();
+            fila [0] = servidor.getUtilPercentage() + "%" ;
+            fila [1] = String.format("%2.02f",servidor.getTotalCost());
             model.addRow(fila);
         }
         tablaStats.setModel(model);
