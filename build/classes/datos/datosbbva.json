@@ -9,8 +9,8 @@
     "unidad":"minutos"
   },
   "servidores":{
-     "cantidad": 3,
-     "costo": 7
+     "cantidad": 10,
+     "costo": 5
    },
   "costoEsperaCliente":2,
   "distribucionLlegada":[
@@ -129,19 +129,19 @@
   ],
   "distribucionServicio":[
     {
-      "tiempo": 3,
+      "tiempo": 5,
       "probabilidad":0.20
     },
     {
-      "tiempo": 5,
+      "tiempo": 7,
       "probabilidad":0.30
     },
     {
-      "tiempo": 6,
+      "tiempo": 8,
       "probabilidad":0.35
     },
     {
-      "tiempo": 7,
+      "tiempo": 9,
       "probabilidad":0.15
     }
   ]

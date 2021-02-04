@@ -10,7 +10,7 @@
   },
   "servidores":{
      "cantidad": 10,
-     "costo": 7
+     "costo": 5
    },
   "costoEsperaCliente":2,
   "distribucionLlegada":[
