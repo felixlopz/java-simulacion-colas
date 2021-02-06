@@ -3,16 +3,16 @@ package simulacion;
 public class Cliente {
     private int AT;
     private int DT;
-    private int number;
+    private int id;
     private int TE;
     private int TS;
     private int queueTime;
     private int ATserver;
 
-    public Cliente(int nroCliente, int tiempoLlegada) {
-        this.AT = tiempoLlegada;
+    public Cliente(int id, int AT) {
+        this.AT = AT;
         this.DT = 0;
-        this.number = nroCliente;
+        this.id = id;
         this.TE = 0;
         this.TS = 0;
         this.queueTime = 0;
@@ -35,12 +35,12 @@ public class Cliente {
         this.DT = DT;
     }
 
-    public int getNumber() {
-        return number;
+    public int getId() {
+        return id;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getTE() {

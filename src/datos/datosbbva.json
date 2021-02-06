@@ -1,83 +1,83 @@
 {
   "capacidadMaxima": 9999,
   "tiempoTotal":{
-    "cantidad": 240,    
+    "cantidad": 100,    
     "unidad":"day"
   },
   "tiempoSecundario":{
-    "cantidad": 420,
-    "unidad":"minutos"
+    "cantidad": 60,
+    "unidad": "minutos"
   },
   "servidores":{
      "cantidad": 10,
      "costo": 5
    },
-  "costoEsperaCliente":2,
+  "costoEsperaCliente": 2,
   "distribucionLlegada":[
     {
       "distribucion":[
         {
-          "cantidad":1,
-          "probabilidad":0.5
+          "cantidad": 1,
+          "probabilidad": 0.5
+        }, 
+        {
+          "cantidad": 2,
+          "probabilidad": 0.2
         },
         {
-          "cantidad":2,
-          "probabilidad":0.2
+          "cantidad": 3,
+          "probabilidad": 0.2
         },
         {
-          "cantidad":3,
-          "probabilidad":0.2
+          "cantidad": 4,
+          "probabilidad": 0.05
         },
         {
-          "cantidad":4,
-          "probabilidad":0.05
-        },
-        {
-          "cantidad":5,
-          "probabilidad":0.05
+          "cantidad": 5,
+          "probabilidad": 0.05
         }
       ]
     },
     {
       "distribucion":[
         {
-          "cantidad":4,
-          "probabilidad":0.1
+          "cantidad": 4,
+          "probabilidad": 0.1
         },
         {
-          "cantidad":5,
-          "probabilidad":0.1
+          "cantidad": 5,
+          "probabilidad": 0.1
         },
         {
-          "cantidad":7,
-          "probabilidad":0.3
+          "cantidad": 7,
+          "probabilidad": 0.3
         },
         {
-          "cantidad":8,
-          "probabilidad":0.35
+          "cantidad": 8,
+          "probabilidad": 0.35
+        },
+        {
+          "cantidad": 9,
+          "probabilidad": 0.15
+        }
+      ]
+    },
+    {
+      "distribucion":[
+        {
+          "cantidad": 4,
+          "probabilidad": 0.15
+        },
+        {
+          "cantidad": 6,
+          "probabilidad": 0.20
+        },
+        {
+          "cantidad": 8,
+          "probabilidad": 0.45
         },
         {
           "cantidad":9,
-          "probabilidad":0.15
-        }
-      ]
-    },
-    {
-      "distribucion":[
-        {
-          "cantidad":4,
-          "probabilidad":0.15
-        },
-        {
-          "cantidad":6,
-          "probabilidad":0.20
-        },
-        {
-          "cantidad":8,
-          "probabilidad":0.45
-        },
-        {
-          "cantidad":9,
           "probabilidad":0.20
         }
       ]
@@ -85,44 +85,44 @@
     {
       "distribucion":[
         {
-          "cantidad":4,
-          "probabilidad":0.10
+          "cantidad": 4,
+          "probabilidad": 0.10
         },
         {
-          "cantidad":7,
-          "probabilidad":0.20
+          "cantidad": 7,
+          "probabilidad": 0.20
         },
         {
-          "cantidad":9,
-          "probabilidad":0.35
+          "cantidad": 9,
+          "probabilidad": 0.35
         },
         {
-          "cantidad":11,
-          "probabilidad":0.35
+          "cantidad": 11,
+          "probabilidad": 0.35
         }
       ]
     },
     {
       "distribucion":[
         {
-          "cantidad":1,
-          "probabilidad":0.50
+          "cantidad": 1,
+          "probabilidad": 0.50
         },
         {
-          "cantidad":2,
-          "probabilidad":0.20
+          "cantidad": 2,
+          "probabilidad": 0.20
         },
         {
-          "cantidad":3,
-          "probabilidad":0.20
+          "cantidad": 3,
+          "probabilidad": 0.20
         },
         {
-          "cantidad":4,
-          "probabilidad":0.05
+          "cantidad": 4,
+          "probabilidad": 0.05
         },
         {
-          "cantidad":5,
-          "probabilidad":0.05
+          "cantidad": 5,
+          "probabilidad": 0.05
         }
       ]
     }
@@ -130,19 +130,19 @@
   "distribucionServicio":[
     {
       "tiempo": 5,
-      "probabilidad":0.20
+      "probabilidad": 0.20
     },
     {
       "tiempo": 7,
-      "probabilidad":0.30
+      "probabilidad": 0.30
     },
     {
       "tiempo": 8,
-      "probabilidad":0.35
+      "probabilidad": 0.35
     },
     {
       "tiempo": 9,
-      "probabilidad":0.15
+      "probabilidad": 0.15
     }
   ]
 } 

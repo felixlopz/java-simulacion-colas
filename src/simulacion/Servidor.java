@@ -1,7 +1,7 @@
 package simulacion;
 
 public class Servidor {
-    private int number;
+    private int id;
     private int status;
     private float utilPercentage;
     public int idCliente;
@@ -20,11 +20,11 @@ public class Servidor {
         dt = 9999;
     }
     
-    public Servidor(int nroServidor,float costoServidor) {
-        this.number = nroServidor;
+    public Servidor(int id,float cost) {
+        this.id = id;
         this.status = 0;
         this.utilPercentage = 0;
-        this.cost = costoServidor;
+        this.cost = cost;
         this.totalCost = 0;
         this.utilTime = 0;
         this.client = null;
@@ -91,12 +91,12 @@ public class Servidor {
         this.totalCost = totalCost;
     }
 
-    public int getNumber() {
-        return number;
+    public int getId() {
+        return id;
     }
 
-    public void setNumber(int number) {
-        this.number = number;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public int getStatus() {

@@ -9,6 +9,8 @@ import simulacion.TablaDistribucion;
 
 import java.io.FileReader;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Scanner;
@@ -43,13 +45,14 @@ public class Inicio extends javax.swing.JFrame {
     
     
      // Parametros entrada archivo
-    public  int capacidadMaxima;
-    public  int tiempoTotal;
-    public  String unidadTiempoTotal;
-    public  int tiempoSecundario;
-    public  String unidadTiempoSecundaria;
-    public  int canitdadServidores;
-    public  int costoEsperaCliente;
+    public int capacidadMaxima;
+    public int tiempoTotal;
+    public String unidadTiempoTotal;
+    public int tiempoSecundario;
+    public String unidadTiempoSecundaria;
+    public int numeroServidores;
+    public int costoEsperaCliente;
+    public int costoServidor;
     
     // Distribuciones
     public  ArrayList<int[][]> distribucionLlegadas;
@@ -92,6 +95,8 @@ public class Inicio extends javax.swing.JFrame {
     public float utilizacionServidoresPercentage;
     
     public final Integer __DT__ = 99999;
+    public final String dataFileName = "datosbbva.json";
+    public final  String reportFileName = "reporte_bbva.txt";
     
     public Boolean initSimulacion (
         int capacidadMaxima, 
@@ -111,8 +116,10 @@ public class Inicio extends javax.swing.JFrame {
         this.unidadTiempoTotal = unidadTiempoTotal; 
         this.tiempoSecundario = tiempoSecundario;
         this.unidadTiempoSecundaria = unidadTiempoSecundaria;
-        this.canitdadServidores = cantidadServidores;
+        this.numeroServidores = cantidadServidores;
         this.costoEsperaCliente = costoEsperaCliente;
+        this.numeroServidores = cantidadServidores;
+        this.costoServidor = costoServidor;
         
         // Tablas de distribuciones
         this.distribucionLlegadas = distribucionLlegadasArray;
@@ -124,7 +131,7 @@ public class Inicio extends javax.swing.JFrame {
     };
     
     
-     public void initSimulationVariables (int cantidadServidores, int costoServidor){
+     public void initSimulationVariables (int numeroServidores, int costoServidor){
         
          // Inicializacion para la simulacion
         
@@ -159,7 +166,7 @@ public class Inicio extends javax.swing.JFrame {
         this.utilizacionServidoresPercentage = 0;
     
           // Inicializacion lista de servidores
-        for (int index=0;index<cantidadServidores;index++) {
+        for (int index = 0; index < numeroServidores; index++) {
             Servidor server = new Servidor(index, costoServidor);
             this.servers.add(server);
         }     
@@ -285,15 +292,15 @@ public class Inicio extends javax.swing.JFrame {
     }
    
     
-    public float getTiempoOciosoServidores (int tiempoTotal){
-         float tiempoOciosoServidores = 0;
+    public float getIdleTime (int totlaTime){
+         float idelTimeServers = 0;
             for (Servidor server: this.servers){                
-                tiempoOciosoServidores += tiempoTotal - server.getUtilTime();
+                idelTimeServers += totlaTime - server.getUtilTime();
             }
-        tiempoOciosoServidores = tiempoOciosoServidores / this.servers.size();
-        tiempoOciosoServidores = tiempoOciosoServidores / this.tiempoTotal; 
-        tiempoOciosoServidores = tiempoOciosoServidores / this.canitdadServidores;  
-        return tiempoOciosoServidores ;
+        idelTimeServers = idelTimeServers / this.servers.size();
+        idelTimeServers = idelTimeServers / this.tiempoTotal; 
+        idelTimeServers = idelTimeServers / this.numeroServidores;  
+        return idelTimeServers ;
     };
     
     public int getIndexOfNextDay (int index){
@@ -311,6 +318,61 @@ public class Inicio extends javax.swing.JFrame {
         else
             return false;
     }
+    
+    public void writeInFileEntryData (FileWriter w) throws IOException{
+        w.write("Reporte de la simulacion del Banco BBVA PZO, archivo: " + this.reportFileName );
+        w.write("\nDatos de entrada:");
+        w.write("\nCapacida maxima del sistema: " + this.capacidadMaxima);
+        w.write("\nTiempo total a simular: " + this.tiempoTotal);
+        w.write("\nLa unidad de tiempo total: " + this.unidadTiempoTotal);
+        w.write("\nTiempo Secundario a Simular " + this.tiempoSecundario);
+        w.write("\nLa unidad de tiempo secundaria: " + this.unidadTiempoSecundaria);
+        w.write("\nCantidad de servidores: " + this.numeroServidores);
+        w.write("\nCosto de servidores: " + this.costoServidor);
+        w.write("\nCosto de esperar un cliente: " + costoEsperaCliente);
+        
+        w.write("\n\n** Distribucion de LLegadas **");
+        
+        int dayIndex = 1;
+        for ( Object objeto : this.distribucionLlegadas ){
+            
+            int [][] distribucion = (int [][]) objeto;
+            
+            w.write("\n\nDia Numero: " + dayIndex++);
+             for (int row = 0; row < distribucion.length; row++){
+               w.write("\nCantidad: " + distribucion[row][0] + " - Probabilidad: " + distribucion[row][1] + "%");
+             }
+        
+        }
+        
+        w.write("\n\n** Distribucion de Servicios **");
+        
+         for (int row = 0; row < distribucionServicio.length; row++){
+            w.write("\nCantidad: " + distribucionServicio[row][0] + " - Probabilidad: " + distribucionServicio[row][1] + "%");
+        }
+        
+        w.close();
+        
+    };
+    
+    
+    public void writeFileReport (){
+        try {
+            File f = new File(this.reportFileName);
+            if (f.createNewFile()) {
+                FileWriter writer = new FileWriter(this.reportFileName);
+                writeInFileEntryData(writer);
+             
+            } else {
+                FileWriter writer = new FileWriter(this.reportFileName);
+                writeInFileEntryData(writer);
+            }
+        } catch (IOException e) {
+            System.out.println("Un error a ocurrido al crear el report de bbva");
+            e.printStackTrace();
+        }
+     
+    };
     
     public void runSimulation(){
         
@@ -336,7 +398,7 @@ public class Inicio extends javax.swing.JFrame {
         float clientesSistemaPromAux = 0;
         float clientesColaPromAux = 0;
         
-        MostrarTablaEventos eventos = new MostrarTablaEventos ( this.canitdadServidores );
+        MostrarTablaEventos eventos = new MostrarTablaEventos ( this.numeroServidores );
         
         while ( this.actualTime < this.tiempoTotal ){           
             while ( !hasNextDay  ){
@@ -431,12 +493,12 @@ public class Inicio extends javax.swing.JFrame {
                         // Establecemos DT
                         TM = this.DT;
                         
-                        // Limpieando servidor utilizado y cliente
+                        // Limpeando servidor utilizado y cliente
                         Servidor freeServer = getServerWithLowestDT(this.servers, lowestDT);
                         if ( freeServer != null){ 
                             freeServer.setUtilTime(TM - freeServer.getClient().getATserver());
                             freeServer.getClient().setDT( TM );
-                            this.clienteNumber = freeServer.getClient().getNumber();
+                            this.clienteNumber = freeServer.getClient().getId();
                             
                             // Sumando al promedio de tiempos
                             tiempoSistemaPromAux += freeServer.getClient().getDT() - freeServer.getClient().getAT();
@@ -453,7 +515,7 @@ public class Inicio extends javax.swing.JFrame {
                             Cliente leavingClient = this.queue.get(index);
                             
                             // Establecemos el tiempo en cola para el cliente
-                            leavingClient.setQueueTime(TM - leavingClient.getAT() );
+                            leavingClient.setQueueTime( TM - leavingClient.getAT() );
                             if (leavingClient.getQueueTime() > 5)
                                 clientesCincoMinutosCounter++;
                             
@@ -569,22 +631,15 @@ public class Inicio extends javax.swing.JFrame {
            String.format("%2.02f", this.tiempoEsperaProm), // Segunda entrega
            String.format("%2.02f", this.utilizacionServidoresPercentage),
            clientesCounterAux,
-           String.format("%2.02f", this.getTiempoOciosoServidores(tiempoTotalAux)) + ' ' + this.unidadTiempoSecundaria,
+           String.format("%2.02f", this.getIdleTime(tiempoTotalAux)) + ' ' + this.unidadTiempoSecundaria,
            String.format("%2.02f", getProbabilidadEsperarCincoMinutos(clientesCincoMinutosCounter, clientesCounterAux))     
          );
                  
           new Resultados(this.actualTime, eventos, data, stats ).setVisible(true);
+          this.writeFileReport();
           
     };
     
-    
-    
-    
-    
-    
-    
-    
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1052,7 +1107,7 @@ public class Inicio extends javax.swing.JFrame {
         int [][] distribucionServicio
     ){
         
-        System.out.println("Se leyo el archivo" + fileName + " exitosamente");
+        System.out.println("Se leyo el archivo " + fileName + " exitosamente");
         System.out.println("Capacida maxima del sistema: " + capacidadMaxima);
         System.out.println("Tiempo total a simular: " + tiempoTotal);
         System.out.println("La unidad de tiempo total: " + unidadTiempoTotal);
@@ -1084,7 +1139,7 @@ public class Inicio extends javax.swing.JFrame {
     
     private void botonArchivoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonArchivoActionPerformed
         
-        String fileName = "datosbbva.json";
+        String fileName = this.dataFileName;
         
         URL path = Datos.class.getResource(fileName);
         File file = new File(path.getFile());
