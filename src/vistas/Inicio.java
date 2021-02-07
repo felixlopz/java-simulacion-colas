@@ -99,7 +99,7 @@ public class Inicio extends javax.swing.JFrame {
     public float utilizacionServidoresPercentage;
     
     
-    public final Integer __DT__ = 999;
+    public final Integer __DT__ = 9999;
     public final String dataFileName = "datosbbva.json";
     public final  String reportFileName = "reporte_bbva.txt";
     
