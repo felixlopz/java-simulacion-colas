@@ -17,10 +17,10 @@ public class Servidor {
         this.costo = costo;
         ss = false;
         idCliente = 0;
-        dt = 9999;
+        dt = 999;
     }
     
-    public Servidor(int id,float cost) {
+    public Servidor(int id, float cost) {
         this.id = id;
         this.status = 0;
         this.utilPercentage = 0;
@@ -28,15 +28,15 @@ public class Servidor {
         this.totalCost = 0;
         this.utilTime = 0;
         this.client = null;
-        dt = 999;
+        this.dt = 999;
     }
     
     
-    public int getDt(){
+    public int getDT(){
         return dt;
     }
     
-    public void setDt(int dt){
+    public void setDT(int dt){
         this.dt = dt;
     }
     

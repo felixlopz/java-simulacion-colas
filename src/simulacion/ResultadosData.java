@@ -23,8 +23,23 @@ public class ResultadosData {
     int contCliente;
     String tiempoOciosoServidores;
     String probabilidadEsperaCincoMinutos; 
+    String tiempoAdicionalProm;
 
-    public ResultadosData(int clientesNoEsperanCount, int clientesNoAtendidosCount, String probabilidadEspera, String clientesPromedioSistema, String clientesPromedioCola, String tiempoPromedioSistema, String tiempoPromedioCola, String tiempoPromedioEspera, String porcentajeUtilGeneral, int contCliente, String tiempoOciosoServidores, String probabilidadEsperaCincoMinutos) {
+    public ResultadosData(    
+        int clientesNoEsperanCount, 
+        int clientesNoAtendidosCount, 
+        String probabilidadEspera, 
+        String clientesPromedioSistema, 
+        String clientesPromedioCola, 
+        String tiempoPromedioSistema, 
+        String tiempoPromedioCola, 
+        String tiempoPromedioEspera, 
+        String tiempoAdicionalProm, 
+        String porcentajeUtilGeneral, 
+        int contCliente, 
+        String tiempoOciosoServidores, 
+        String probabilidadEsperaCincoMinutos
+    ) {
         this.clientesNoEsperanCount = clientesNoEsperanCount;
         this.clientesNoAtendidosCount = clientesNoAtendidosCount;
         this.probabilidadEspera = probabilidadEspera;
@@ -33,10 +48,19 @@ public class ResultadosData {
         this.tiempoPromedioSistema = tiempoPromedioSistema;
         this.tiempoPromedioCola = tiempoPromedioCola;
         this.tiempoPromedioEspera = tiempoPromedioEspera;
+        this.tiempoAdicionalProm = tiempoAdicionalProm;
         this.porcentajeUtilGeneral = porcentajeUtilGeneral;
         this.contCliente = contCliente;
         this.tiempoOciosoServidores = tiempoOciosoServidores;
         this.probabilidadEsperaCincoMinutos = probabilidadEsperaCincoMinutos;
+    }
+
+    public String getTiempoAdicionalProm() {
+        return tiempoAdicionalProm;
+    }
+
+    public void setTiempoAdicionalProm(String tiempoAdicionalProm) {
+        this.tiempoAdicionalProm = tiempoAdicionalProm;
     }
 
     public int getClientesNoEsperanCount() {

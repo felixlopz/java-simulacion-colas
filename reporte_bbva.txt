@@ -5,7 +5,7 @@ Tiempo total a simular: 100
 La unidad de tiempo total: day
 Tiempo Secundario a Simular 60
 La unidad de tiempo secundaria: minutos
-Cantidad de servidores: 10
+Cantidad de servidores: 2
 Costo de servidores: 5
 Costo de esperar un cliente: 2
 
@@ -49,3 +49,19 @@ Cantidad: 5 - Probabilidad: 20%
 Cantidad: 7 - Probabilidad: 30%
 Cantidad: 8 - Probabilidad: 35%
 Cantidad: 9 - Probabilidad: 15%
+
+=== Resultados ===
+
+Clientes que no esperan: 616
+Cantidad de clientes que se van sin ser atendidos: 0
+Probabilidad de esperar: 67.69795 %
+Cantidad promedio de clientes en Sistema: 4.477062
+Cantidad promedio de clientes en cola: 3.075323
+Tiempo promedio de un cliente en Sistema: -7.938893 minutos
+Tiempo promedio de un cliente en cola: 11.2118845 minutos
+Tiempo promedio de espera del cliente que hace cola: 12.91 minutos
+Tiempo promedio adicional que se trabaja después de cerrar: 29.34 minutos
+Porcentaje de utilización general de servidores: 76.0
+Estadisticas de servidores
+Servidor1 -> Porcentaje: 87.0% - Costo: 749.50
+Servidor2 -> Porcentaje: 65.0% - Costo: 749.50

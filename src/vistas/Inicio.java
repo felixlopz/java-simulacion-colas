@@ -63,22 +63,22 @@ public class Inicio extends javax.swing.JFrame {
     public int DT;
     public int AT;
     public int actualTime;
-    public int clienteNumber;
+    public int clientNumber;
 
     public String eventType;
     public int eventNumber;
     
     public String numeroAleatorioTE;
-    public String TE;
+    public int TE;
 
     public String numeroAleatorioTS;
-    public String TS;
+    public int TS;
     
     public List<Cliente> queue;
     public List<Servidor> servers;
 
     // Contadores simulacion
-    public int clienteCounter;
+    public int clientCounter;
     public int clientesEsperanCounter;
     public int clientesNoEsperanCounter;
     public int clientesNoAtendidosCounter;
@@ -89,12 +89,17 @@ public class Inicio extends javax.swing.JFrame {
     public float clientesColaProm;
     public float tiempoColaProm;
     public float tiempoSistemaProm;
-    public float tiempoEsperaProm;
+    public float tiempoEsperaColaProm;
+    public float tiempoAdicionalProm;
+    public float tiempoOciosoServidores;
     
     public float probabilidadEsperar;
+    public float probabilodadEsperarCincoMinutos;
+
     public float utilizacionServidoresPercentage;
     
-    public final Integer __DT__ = 99999;
+    
+    public final Integer __DT__ = 999;
     public final String dataFileName = "datosbbva.json";
     public final  String reportFileName = "reporte_bbva.txt";
     
@@ -138,20 +143,20 @@ public class Inicio extends javax.swing.JFrame {
         this.AT = 0;
         this.DT = this.__DT__;
         this.actualTime = 0;
-        this.clienteNumber = 0;
+        this.clientNumber = 0;
 
         this.eventNumber = 0;
         this.eventType = "";
          
         this.numeroAleatorioTE = "";
-        this.TE= "";
+        this.TE = 0;
         this.numeroAleatorioTS = "";
-        this.TS= "";
+        this.TS = 0;
 
         this.queue = new ArrayList();
         this.servers = new ArrayList();
         
-        this.clienteCounter = 0;
+        this.clientCounter = 0;
         this.clientesEsperanCounter = 0;
         this.clientesNoEsperanCounter = 0;
         this.clientesNoAtendidosCounter = 0;
@@ -160,9 +165,12 @@ public class Inicio extends javax.swing.JFrame {
         this.clientesSistemaProm = 0;
         this.tiempoColaProm = 0;
         this.tiempoSistemaProm = 0;
-        this.tiempoEsperaProm = 0;
+        this.tiempoEsperaColaProm = 0;
+        this.tiempoAdicionalProm = 0;
+        this.tiempoOciosoServidores = 0;
         
         this.probabilidadEsperar = 0;
+        this.probabilodadEsperarCincoMinutos = 0;
         this.utilizacionServidoresPercentage = 0;
     
           // Inicializacion lista de servidores
@@ -173,32 +181,27 @@ public class Inicio extends javax.swing.JFrame {
         
     };
      
-      public int getLowestDT ( List<Servidor> servidores, int comparator){
+      public int getLowestDT ( List<Servidor> servidores ){
     
-        int lowestValue = comparator;
+        int lowestValue = this.__DT__;
                 
-        for(Servidor server:servers){
-            if ( server.getClient() != null ){    
-                if( server.getClient().getDT() < lowestValue){
-                    lowestValue = server.getClient().getDT();
-                    server.setDt(server.getClient().getDT());
-                }
+        for(Servidor server : servidores){
+            if( server.getDT() < lowestValue){
+                lowestValue = server.getDT();
             }
         }
         return lowestValue;
     }
     
-    public Servidor getServerWithLowestDT ( List<Servidor> servidores, int comparator){
+    public Servidor getServerWithLowestDT ( List<Servidor> servers){
     
-        int lowestValue = comparator;        
+        int lowestValue = this.__DT__;        
         Servidor lowestServer = null;
         
-        for(Servidor server:servers){
-            if ( server.getClient() != null ){
-                if( server.getClient().getDT() < lowestValue ){
-                    lowestValue = server.getClient().getDT();
-                    lowestServer = server;
-                }
+        for(Servidor server : servers){            
+            if( server.getDT() < lowestValue ){
+                lowestValue = server.getDT();
+                lowestServer = server;
             }
         }
         return lowestServer;
@@ -241,11 +244,12 @@ public class Inicio extends javax.swing.JFrame {
            server.setTotalCost((server.getCost() * tiempoTotal) / 60);
        }                         
        this.utilizacionServidoresPercentage = this.utilizacionServidoresPercentage / this.servers.size();
-    
+       
+       
     }
     
     public void initPromedios (){
-        this.tiempoEsperaProm = this.tiempoEsperaProm / this.actualTime; 
+        this.tiempoEsperaColaProm = this.tiempoEsperaColaProm / this.actualTime; 
         this.tiempoSistemaProm = this.tiempoSistemaProm / this.actualTime;
         this.tiempoColaProm = this.tiempoColaProm / this.actualTime;
         this.clientesSistemaProm = this.clientesSistemaProm / this.actualTime;
@@ -319,7 +323,7 @@ public class Inicio extends javax.swing.JFrame {
             return false;
     }
     
-    public void writeInFileEntryData (FileWriter w) throws IOException{
+    public void writeInFileData (FileWriter w) throws IOException{
         w.write("Reporte de la simulacion del Banco BBVA PZO, archivo: " + this.reportFileName );
         w.write("\nDatos de entrada:");
         w.write("\nCapacida maxima del sistema: " + this.capacidadMaxima);
@@ -351,6 +355,26 @@ public class Inicio extends javax.swing.JFrame {
             w.write("\nCantidad: " + distribucionServicio[row][0] + " - Probabilidad: " + distribucionServicio[row][1] + "%");
         }
         
+        w.write ("\n\n=== Resultados ===\n\n");
+        
+        w.write("Clientes que no esperan: " + this.clientesNoEsperanCounter);
+        w.write("\nCantidad de clientes que se van sin ser atendidos: " + this.clientesNoAtendidosCounter);
+        w.write("\nProbabilidad de esperar: " + this.probabilidadEsperar + " %");
+        w.write("\nCantidad promedio de clientes en Sistema: " + this.clientesSistemaProm / this.tiempoTotal);
+        w.write("\nCantidad promedio de clientes en cola: " + this.clientesColaProm / this.tiempoTotal);
+        w.write("\nTiempo promedio de un cliente en Sistema: " + this.tiempoSistemaProm / this.tiempoTotal + " " + this.unidadTiempoSecundaria);
+        w.write("\nTiempo promedio de un cliente en cola: " + this.tiempoColaProm / this.tiempoTotal + " " + this.unidadTiempoSecundaria);
+        w.write("\nTiempo promedio de espera del cliente que hace cola: " + this.tiempoEsperaColaProm / this.tiempoTotal + " " + this.unidadTiempoSecundaria);
+        w.write("\nTiempo promedio adicional que se trabaja después de cerrar: " + this.tiempoAdicionalProm / this.tiempoTotal + " " + this.unidadTiempoSecundaria);
+        w.write("\nPorcentaje de utilización general de servidores: " + this.utilizacionServidoresPercentage);
+        
+        w.write("\nEstadisticas de servidores");
+        
+        int index = 0;
+        for (Servidor  server : this.servers){
+            w.write("\nServidor" + (index + 1) + " -> Porcentaje: " + server.getUtilPercentage() + "%" + " - Costo: " + String.format("%2.02f",server.getTotalCost()));
+            index++;
+        }
         w.close();
         
     };
@@ -361,11 +385,11 @@ public class Inicio extends javax.swing.JFrame {
             File f = new File(this.reportFileName);
             if (f.createNewFile()) {
                 FileWriter writer = new FileWriter(this.reportFileName);
-                writeInFileEntryData(writer);
+                writeInFileData(writer);
              
             } else {
                 FileWriter writer = new FileWriter(this.reportFileName);
-                writeInFileEntryData(writer);
+                writeInFileData(writer);
             }
         } catch (IOException e) {
             System.out.println("Un error a ocurrido al crear el report de bbva");
@@ -376,268 +400,273 @@ public class Inicio extends javax.swing.JFrame {
     
     public void runSimulation(){
         
+        int tiempoTotalAux = 0;
         int TM = 0;
-        int lowestDT = 0;
-        int queueLength = 0;
-        int clientesSistemaCounter = 0;
-        int clientesCincoMinutosCounter = 0;
-
-        float tiempoEsperaPromAux = 0;
-        float tiempoSistemaPromAux = 0;
-        float tiempoColaPromAux = 0;
-
-        // Auxiliares
-        int lasTimeAux = 0;
-        int tiempoTotalAux =  0;
-        int clientesEnSistemaAux = 0;
-        int indexOfDay = 0;
-        Boolean hasNextDay = false;
-        int queueLengthAux;
-        int clientesCounterAux = 0;
         
+        int indexOfDay = 0;
+        
+        int clientsInSystem = 0;
+        
+        // Auxiliares
+        int clientCounterAux = 0;
+        int queueLengthAux = 0;
+        int clientsInSystemAux = 0;
+        int lastTM = 0 ;
+        int clientesEsperanCounterAux = 0;
+        int esperaCincoMinutosCounter = 0;
+        int tiempoTotalFinal = 0;
+        
+        // Auxiliares Promedios
         float clientesSistemaPromAux = 0;
         float clientesColaPromAux = 0;
+        float tiempoSistemaPromAux = 0;
+        float tiempoColaPromAux = 0;
+        float tiempoEsperaColaPromAux = 0;
+        float tiempoAdicionalPromAux = 0;
+        
+        boolean keepWorking = true;
         
         MostrarTablaEventos eventos = new MostrarTablaEventos ( this.numeroServidores );
         
-        while ( this.actualTime < this.tiempoTotal ){           
-            while ( !hasNextDay  ){
+        while ( tiempoTotalAux <= this.tiempoTotal){
+            while( keepWorking ){
                 
-                // Inicializacion
-                this.eventNumber++;          
-                clientesEnSistemaAux = clientesSistemaCounter;
-                queueLengthAux = queueLength;
-                lowestDT = this.__DT__;
-                lasTimeAux = TM;           
                 
-                 // Condicion para procesar salidas o llegadas
-                if ( TM < this.tiempoSecundario && this.AT < this.DT ){
+                clientsInSystemAux = clientsInSystem;
+                queueLengthAux = this.queue.size();
+                lastTM = TM;
+                
+                
+                if ( TM <= this.tiempoSecundario && this.AT < this.DT  ){// procesar llegada cliente
                     
-                    // Procesar llegada del cliente
+                    // Esblecemos  TM
+                    TM = this.AT;
                     
-                    if ( clientesSistemaCounter < this.capacidadMaxima ){ // Verificar que el sistema no este a su maxima capacidad
+                   if ( clientsInSystem <= this.capacidadMaxima ){ // Verificamos si el sistema puede ingresar otro cliente
+                       
+                       this.eventNumber++;
+                       this.eventType = "Llegada";
+                       this.clientCounter++;
+                       
+                       clientsInSystem++;
+                       clientCounterAux++;
+                       this.clientNumber =  clientCounterAux;                    
+                       
+                       Cliente client = new Cliente( clientCounterAux, TM );
+                       
+                       if ( !this.areServersFull( this.servers ) ){ // verificamos si hay servidores disponibles
+                           
+                           this.clientesNoEsperanCounter++; // contador clientes que no esperan
+                           
+                           Servidor selectedServer = this.selectServer( this.servers );
+                           
+                           // Marcar estado del servidor
+                           selectedServer.setStatus(1);
+                           selectedServer.setClient(client);
+                           
+                           // Generamos TS
+                           this.TS = this.getTS();
+                           
+                           // Establecemos DT del servidor
+                           selectedServer.setDT(TM + this.TS);
+                           
+                           // Guadarmos AT y DT en el cliente para usar en resultados
+                           client.setAT(TM);
+                           client.setDT(TM + this.TS);
+                           client.setATserver( TM );
+                       }
+                       else{
+                           
+                           // Clientes que esperan counter
+                           this.clientesEsperanCounter++;
+                           clientesEsperanCounterAux++;
+                           
+                           this.queue.add(client);
+                       }
+                       
+                       // Generamos TE
+                       this.TE = this.getTE( indexOfDay );
+                       
+                       // Establecemos AT
+                       this.AT = TM + this.TE; 
+                       
+                       // Establecemos DT para nuetra siguiente iteracion
+                       this.DT = this.getLowestDT( this.servers );
+                   }else{
+                       // Contamos que un cliente se fue sin ser atendido
+                       this.AT += this.getTE(indexOfDay);
+                       
+                       this.clientesNoAtendidosCounter++;
+                   }
+                }else { // Procesar salida
+                    clientsInSystem--;
+                    this.eventNumber++;
+                    this.eventType = "Salida";
+                    this.TS = 0;
+                    this.TE = 0;
+                    this.numeroAleatorioTE = "-";
+                    this.numeroAleatorioTS = "-";
+                    
+                    // Esblecemos  TM
+                    TM = this.DT;
+                    
+                    // Liberamos un servidor
+                    Servidor server = getServerWithLowestDT (this.servers);
+                    
+                    if ( server != null ){
                         
-                        this.eventType = "Llegada";
-                        TM = this.AT; // Establecer tiempo de llegada
-                        this.clienteCounter++; // Aumenta la Cantidad de clientes
-                        clientesSistemaCounter++; // Aumenta la Cantidad de clientes en sistema
-                        this.clienteNumber = this.clienteCounter; // Se le asigna un numero
+                        this.clientNumber = server.getClient().getId();
+                        tiempoSistemaPromAux += server.getClient().getDT() - server.getClient().getAT(); // Tiempo en sistema del cliente
+                        tiempoColaPromAux += server.getClient().getQueueTime(); // Tiempo en cola del cliente
                         
-                        Cliente cliente = new Cliente(clientesCounterAux,TM); // Creacion del objeto cliente
-                        Servidor selectedServer = this.selectServer(servers); // Busca el servidor para ingresar al cliente 
+                        server.setUtilTime(TM - server.getClient().getATserver());
                         
-                        if ( selectedServer != null ){  // Si encontro un servidor disponible
-                            this.clientesNoEsperanCounter++; // Aumenta contador clientes que no esperan
- 
-                            selectedServer.setStatus(1); // Cambiar estado del servidor
-                            selectedServer.setClient(cliente); // Cliente atendio
-
-                            // Genera tiempo de servicio
-                            int tiempoServicioAux = this.getTS();
-                            cliente.setTS(tiempoServicioAux); 
-                            this.TS = Integer.toString(tiempoServicioAux); 
-                            
-                            // Establecemos DT
-                            this.DT = TM + tiempoServicioAux; 
-                            cliente.setDT(DT); 
-                            
-                            // Genera tiempo entre llegada
-                            int tiempoEntreLlegadaAuxiliar = this.getTE(indexOfDay); 
-                            cliente.setTE( tiempoEntreLlegadaAuxiliar );
-                            this.TE = Integer.toString(tiempoEntreLlegadaAuxiliar);
-                            
-                            // Establecemos AT
-                            this.AT = TM + tiempoEntreLlegadaAuxiliar;
-                            cliente.setATserver(TM );
-                            
-                            // Se busca el proximo DT ( con el menor valor )
-                            lowestDT = getLowestDT(this.servers, lowestDT );
-                            this.DT = lowestDT;                    
-                        }
-                        else{ // Si no hay servidores disponible
-                            
-                            // Actualizamos la cola y sus contadores
-                            queueLength++;
-                            this.clientesEsperanCounter++;
-                            this.queue.add(cliente);
-                            
-                            // Generar tiempo entre llegada
-                            int tiempoEntreLlegadaAuxiliar = this.getTE(indexOfDay); 
-                            cliente.setTE( tiempoEntreLlegadaAuxiliar );
-                            this.TE = Integer.toString(tiempoEntreLlegadaAuxiliar);
-                            
-                            // Establecemos AT
-                            this.AT = TM + tiempoEntreLlegadaAuxiliar;
-                        }
+                        server.setStatus(0);
+                        server.setClient(null);
+                        server.setDT( this.__DT__);
                     }
-                    else{
-                        // Se aumenta el contador de clientes no atendidos
-                        AT += this.getTE(indexOfDay ); // Se programa la siguiente llegada
-                        this.clientesNoAtendidosCounter++;
+                    
+                    if (this.queue.size() <= 0){
+                        
+                        // Establecemos DT para la siguiente iteracion
+                        if (areServersFree(this.servers)) 
+                            this.DT = this.__DT__;
+                        else
+                            this.DT = this.getLowestDT( this.servers );
+                        
+                        
+                    }else if (this.queue.size() > 0){ // verificamos el tamano de la cola
+                        
+                        // Actualizar cola    
+                        int firstClient = 0;
+                        
+                        Cliente client = this.queue.get(firstClient);
+                        
+                        // Guardamos el tiempo en cola para usar resultados
+                        client.setQueueTime( TM - client.getAT() );
+                        client.setATserver(TM);
+                        // Contador espera 5 minutos
+                        if ( client.getQueueTime() > 5 ){
+                            esperaCincoMinutosCounter++;
+                        }
+                        server.setStatus(1);
+                        server.setClient(client);
+                        
+                        this.queue.remove (firstClient);
+                        
+                        // Generar TS
+                        this.TS = this.getTS();
+                        
+                        // Establecemos DT para el 
+                        server.setDT(TM + this.TS);
+                        
+                         // Establecemos DT para nuetra siguiente iteracion
+                        this.DT = this.getLowestDT( this.servers );
                     }
                 }
-                else{
-                    
-                    // Procesar Salida del cliente del cliente
-                    
-                    if( clientesSistemaCounter > 0 ){ // Si tenemos clientes en el sistema
-                        clientesSistemaCounter--;
-                        
-                        // Preparamos la salida en la tabla de eventos
-                        this.eventType = "Salida";
-                        this.TS = "";
-                        this.TE = "";
-                        this.numeroAleatorioTS = "";
-                        this.numeroAleatorioTE = "";
-                        
-                        // Establecemos DT
-                        TM = this.DT;
-                        
-                        // Limpeando servidor utilizado y cliente
-                        Servidor freeServer = getServerWithLowestDT(this.servers, lowestDT);
-                        if ( freeServer != null){ 
-                            freeServer.setUtilTime(TM - freeServer.getClient().getATserver());
-                            freeServer.getClient().setDT( TM );
-                            this.clienteNumber = freeServer.getClient().getId();
-                            
-                            // Sumando al promedio de tiempos
-                            tiempoSistemaPromAux += freeServer.getClient().getDT() - freeServer.getClient().getAT();
-                            tiempoColaPromAux += freeServer.getClient().getQueueTime();
-                            
-                            freeServer.setStatus(0);
-                            freeServer.setClient(null);
-                        }          
-                        
-                        if ( queueLength > 0){ // Verificacion el tamano de la cola 
-                            queueLength--;
-                            
-                            int index = 0;
-                            Cliente leavingClient = this.queue.get(index);
-                            
-                            // Establecemos el tiempo en cola para el cliente
-                            leavingClient.setQueueTime( TM - leavingClient.getAT() );
-                            if (leavingClient.getQueueTime() > 5)
-                                clientesCincoMinutosCounter++;
-                            
-                            // Generamos el tiempo de servicio
-                            leavingClient.setTS(this.getTS() );
-                            this.TS = Integer.toString(leavingClient.getTS());
-                            
-                            // Eablecemos DT
-                            this.DT = TM + leavingClient.getTS();
-                            
-                            leavingClient.setDT(this.DT); // Guardamos DT en el cliente
-                            
-                            // Asignamos el cliente al un servidor
-                            freeServer.setClient(leavingClient);
-                            freeServer.setStatus(1);    
-                            
-                            leavingClient.setATserver(TM); // Establecemos tiempo llegada al servidor
-                            this.queue.remove(index); // Eliminamos de la cola
-                        }
-                        else{ // TamanoCola igual a 0
-                            lowestDT = this.__DT__;
-                            if ( areServersFree(this.servers) )  this.DT = this.__DT__;
-                            else{
-                                // Buscamos el menor DT
-                                lowestDT = getLowestDT(this.servers, lowestDT );
-                                this.DT = lowestDT;
-                            }
-                        }
-                        
-                        // Verificamos el tiempo de la simulacion
-                        if ( TM >= this.tiempoSecundario && clientesSistemaCounter == 0 ){
-                            hasNextDay = true; // Bandera
-                            // Cambiamos el dia de la distribucion de llegadas
-                            indexOfDay = getIndexOfNextDay(indexOfDay);
-                        }
-                    }
-                }
-                // Escritura de la fila en la tabla de enventos
+                
                 eventos.agregarFila(
                     this.eventNumber, 
                     this.eventType, 
-                    this.clienteNumber, 
+                    this.clientNumber, 
                     TM, 
                     this.numeroAleatorioTE,
-                    this.TE,
+                    this.TE == 0 ? "-" : Integer.toString(this.TE),
                     this.numeroAleatorioTS,
-                    this.TS, 
-                    queueLength, 
+                    this.TS == 0 ? "-" : Integer.toString(this.TE), 
+                    this.queue.size(), 
                     this.AT, 
                     this.servers
-                );   
+                );
                 
-                 // Promedios
-                clientesSistemaPromAux += (TM - lasTimeAux) * clientesEnSistemaAux;
-                clientesColaPromAux += (TM - lasTimeAux) * queueLengthAux;
+                // Promedios
+                clientesSistemaPromAux += ( TM - lastTM ) * clientsInSystemAux;
+                clientesColaPromAux += ( TM - lastTM ) * queueLengthAux;
                 
-            } // Fin del tiempo secundario
+                // Verificamos el tiempo de la simulacion
+                if ( TM >= this.tiempoSecundario && clientsInSystem <= 0 ){
+                   keepWorking = false; 
+                }
+                
+            } // Fin del ciclo de trabjo
+            
+          // Promedios
+          clientesSistemaPromAux = clientesSistemaPromAux / TM; // clientes en sistema despues de cada dia
+          clientesColaPromAux = clientesColaPromAux / TM; // clientes en sistema despues de cada dia
+          
+          tiempoSistemaPromAux = tiempoSistemaPromAux / clientCounterAux; // tiempo en sistema despues de cada dia
+          tiempoColaPromAux = tiempoColaPromAux / clientCounterAux; // tiempo en cola despues de cada dia
+          
+          tiempoAdicionalPromAux = TM - this.tiempoSecundario;
+          
+          if (clientesEsperanCounterAux > 0) tiempoEsperaColaPromAux = clientesEsperanCounterAux;
 
-            hasNextDay = false; // Bandera
-            
-            tiempoTotalAux += TM;   
-            tiempoSistemaPromAux = tiempoSistemaPromAux / this.clienteCounter;
-            tiempoColaPromAux = tiempoColaPromAux / this.clienteCounter;
-            clientesSistemaPromAux = clientesSistemaPromAux / TM;
-            clientesColaPromAux = clientesColaPromAux / TM;
-            
-            if ( this.clientesEsperanCounter != 0) tiempoEsperaPromAux = tiempoColaPromAux / this.clientesEsperanCounter;
-            else tiempoEsperaPromAux = 0; 
-            // Sumatoria de promedios
-            this.tiempoEsperaProm += tiempoEsperaPromAux; 
-            this.tiempoSistemaProm += tiempoSistemaPromAux;
-            this.tiempoColaProm += tiempoColaPromAux;
-            this.clientesSistemaProm += clientesSistemaPromAux;
-            this.clientesColaProm += clientesColaPromAux; 
-            
-            // Reset de promedios y contadores
-            clientesCounterAux += this.clienteCounter;
-            clientesSistemaCounter = 0;
-            tiempoEsperaPromAux = 0;
-            tiempoSistemaPromAux = 0;
-            tiempoColaPromAux = 0;
-            clientesSistemaPromAux = 0;
-            clientesColaPromAux = 0;
-            this.clienteCounter = 0;
-            TM = 0;
-            this.AT = 0;
-            this.DT = this.__DT__;
-            this.eventNumber = 0;
-            queueLength = 0;
-            
-            eventos.agregarFilaSeparadora(); // Agregar fila para un nuevo dia
-            
-            this.actualTime++;
-            
-        }// Fin del tiempoTotal
+          // Sumatoria de promedios
+          this.clientesSistemaProm += clientesSistemaPromAux;
+          this.clientesColaProm += clientesColaPromAux;
+          this.tiempoSistemaProm += tiempoSistemaPromAux;
+          this.tiempoColaProm += tiempoColaPromAux;
+          this.tiempoEsperaColaProm += tiempoEsperaColaPromAux;
+          this.tiempoAdicionalProm += tiempoAdicionalPromAux;
+          
+          tiempoTotalFinal += TM;
+          
+          // Reset para empezar un nuevo dia  
+          TM = 0;
+          indexOfDay = this.getIndexOfNextDay(indexOfDay);
+          this.AT = 0;
+          this.DT = this.__DT__;
+          this.TS = 0;
+          this.TE = 0;
+          this.eventNumber = 0;
+          clientsInSystem = 0;
+          clientCounterAux = 0;
+          tiempoSistemaPromAux = 0;
+          tiempoColaPromAux = 0;
+          clientesEsperanCounterAux = 0;
+          tiempoEsperaColaPromAux = 0;
+                  
+          eventos.agregarFilaSeparadora();
+          
+          keepWorking = true;
+          tiempoTotalAux++;  
+        }// Fin del ciclo de simulacion
         
         
-        this.probabilidadEsperar = ((float) this.clientesEsperanCounter / clientesCounterAux) * 100;
-            
-        initUtilizacionDeServidores(tiempoTotalAux);
-        initPromedios();
-           
+        // Probabilidad de esperar
+        if (this.clientesEsperanCounter > 0){
+            this.probabilidadEsperar = ((float) this.clientesEsperanCounter / this.clientCounter) * 100;
+        }    
+        
+        
+        if ( esperaCincoMinutosCounter > 0) 
+            this.probabilodadEsperarCincoMinutos = ((float) esperaCincoMinutosCounter / this.clientCounter) * 100;
+                
+        this.initUtilizacionDeServidores(tiempoTotalFinal);
         EstadisticasServidor stats = new EstadisticasServidor(this.servers);
         
         ResultadosData data = new ResultadosData(
            this.clientesNoEsperanCounter,
            this.clientesNoAtendidosCounter,
            String.format("%2.02f", this.probabilidadEsperar),
-           String.format("%2.02f", this.clientesSistemaProm),
-           String.format("%2.02f", this.clientesColaProm),
-           String.format("%2.02f", this.tiempoSistemaProm),
-           String.format("%2.02f", this.tiempoColaProm),
-           String.format("%2.02f", this.tiempoEsperaProm), // Segunda entrega
-           String.format("%2.02f", this.utilizacionServidoresPercentage),
-           clientesCounterAux,
-           String.format("%2.02f", this.getIdleTime(tiempoTotalAux)) + ' ' + this.unidadTiempoSecundaria,
-           String.format("%2.02f", getProbabilidadEsperarCincoMinutos(clientesCincoMinutosCounter, clientesCounterAux))     
+           String.format("%2.02f", this.clientesSistemaProm / this.tiempoTotal),
+           String.format("%2.02f", this.clientesColaProm / this.tiempoTotal ),
+           String.format("%2.02f", Math.abs(this.tiempoSistemaProm) / this.tiempoTotal ) + " " + this.unidadTiempoSecundaria,
+           String.format("%2.02f", this.tiempoColaProm / this.tiempoTotal ) + " " + this.unidadTiempoSecundaria,
+           String.format("%2.02f", this.tiempoEsperaColaProm / this.tiempoTotal) + " " + this.unidadTiempoSecundaria,
+           String.format("%2.02f", this.tiempoAdicionalProm / this.tiempoTotal) + " " + this.unidadTiempoSecundaria,
+           String.format("%2.02f", this.utilizacionServidoresPercentage) + "%",
+           this.clientCounter,
+           String.format("%2.02f", this.getIdleTime(tiempoTotalFinal)) + " " + this.unidadTiempoSecundaria,
+           String.format("%2.02f", this.probabilodadEsperarCincoMinutos)
          );
-                 
-          new Resultados(this.actualTime, eventos, data, stats ).setVisible(true);
-          this.writeFileReport();
-          
+        
+        
+        new Resultados(this.actualTime, eventos, data, stats).setVisible(true);
+        
+        this.writeFileReport();
+        
+      
     };
     
     @SuppressWarnings("unchecked")

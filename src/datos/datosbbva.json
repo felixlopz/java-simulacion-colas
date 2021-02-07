@@ -9,7 +9,7 @@
     "unidad": "minutos"
   },
   "servidores":{
-     "cantidad": 10,
+     "cantidad": 2,
      "costo": 5
    },
   "costoEsperaCliente": 2,
